@@ -1,0 +1,1 @@
+Directory contains scripts for comparing long vs. short read output.
