@@ -1,0 +1,1 @@
+This directory contains scripts for adding intron property annotation to files

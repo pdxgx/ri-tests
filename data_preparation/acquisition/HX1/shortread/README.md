@@ -1,0 +1,1 @@
+Directory contains scripts for download and processing of HX1 short-read RNA-seq data.

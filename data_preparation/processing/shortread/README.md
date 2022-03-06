@@ -1,0 +1,1 @@
+This directory contains scripts for processing short-read data for further analysis

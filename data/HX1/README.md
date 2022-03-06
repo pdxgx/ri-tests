@@ -1,0 +1,1 @@
+Directory contains files for generation of figures and tables with HX1 data

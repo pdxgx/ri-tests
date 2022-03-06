@@ -1,0 +1,1 @@
+Directory contains scripts for download and processing of iPSC short-read RNA-seq data.

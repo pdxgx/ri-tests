@@ -1,0 +1,1 @@
+This directory contains scripts for generating supplemental figures, named by figure number.
