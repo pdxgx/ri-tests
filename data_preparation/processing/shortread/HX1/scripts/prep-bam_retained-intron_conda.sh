@@ -72,8 +72,8 @@ sudo /opt/anaconda3/envs/ri_bamprep/bin/samtools sort -O BAM -o \
     RI_benchmarking_hx1/SRR2911306.unsorted.bam
 
 # PREP THE KMA RANGES
-seqpath=
-gtfpath=
+seqpath=seq.fa
+gtfpath=trans.gtf
 outdir=RI_benchmarking_hx1
 PRE=/path/to/kma/preprocess
 python $PRE/generate_introns.py --genome seq.fa --gtf trans.gtf --extend N --out out_dir

@@ -1,0 +1,29 @@
+name: py370_preprocess
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - bowtie2=2.3.4.3=py37h5c9b4e4_1
+  - bzip2=1.0.8=h0d85af4_4
+  - ca-certificates=2020.12.5=h033912b_0
+  - certifi=2020.12.5=py37hf985489_1
+  - libcxx=11.1.0=habf9029_0
+  - libffi=3.2.1=hb1e8313_1007
+  - ncurses=6.2=h2e338ed_4
+  - openssl=1.0.2u=h0b31af3_0
+  - perl=5.32.0=hbcb3906_0
+  - pip=21.1.1=pyhd8ed1ab_0
+  - python=3.7.0=h145921a_1006
+  - python_abi=3.7=1_cp37m
+  - readline=7.0=hcfe32e1_1001
+  - samtools=1.3.1=0
+  - setuptools=49.6.0=py37hf985489_3
+  - sqlite=3.28.0=h9721f7c_0
+  - star=2.7.6a=0
+  - tbb=2020.2=h940c156_4
+  - tk=8.6.10=h0419947_1
+  - wheel=0.36.2=pyhd3deb0d_0
+  - xz=5.2.5=haf1e3a3_1
+  - zlib=1.2.11=h7795811_1010
+prefix: /Users/maden/miniconda3/envs/py370_preprocess

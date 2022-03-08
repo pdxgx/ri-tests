@@ -2,13 +2,18 @@
 
 # Author: Sean Maden
 #
-# Run IntEREst on bam file chr chunks.
-
-# run R with sudo
-# sudo /lib64/R/bin/R
+# Run IntEREst to quantify intron expression from chr-chunked 
+# BAM file.
+# 
+# Note:
+# run R with sudo:
+# > sudo /lib64/R/bin/R
 
 library(IntEREst)
 
+#----------
+# load data
+#----------
 # define paths
 srrid="SRR6026510"
 results.dpath <- file.path("home", "metamaden", "ri_results", srrid)
@@ -28,6 +33,9 @@ ref.fpath <- file.path("home", "metamaden", "ri_results",
     "interest_ipsc", "gen35gff3_interest-ref.rda")
 ref <- get(load(ref.fpath))
 
+#---------------
+# process chunks
+#---------------
 # process each bam file chunk
 for(fn in lfv){
     message("Working on file ", fn)
@@ -50,6 +58,9 @@ for(fn in lfv){
     message("Finished with file ", fn)
 }
 
+#------------------
+# get results table
+#------------------
 # read results chunks into single table file
 # interest.dpath <- "."; srrid="SRR6026510"
 fnv <- list.files(interest.dpath)
@@ -65,7 +76,7 @@ table(duplicated(tf$intronid))
 # FALSE
 # 617212
 
-# save
+# save results table
 tfname <- paste0("interest_allchr_", srrid)
 rda.fpath <- file.path(interest.dpath, paste0(tfname, ".rda"))
 txt.fpath <- file.path(interest.dpath, paste0(tfname, ".txt"))
@@ -73,16 +84,3 @@ csv.fpath <- file.path(interest.dpath, paste0(tfname, ".csv"))
 save(tf,file = rda.fpath)
 write.csv(tf, file = csv.fpath)
 write.table(tf, file = txt.fpath)
-
-
-
-
-
-
-
-
-
-
-
-
-

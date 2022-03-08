@@ -15,6 +15,9 @@ library(plyranges)
 library(Rsamtools)
 #library(ggplot2)
 
+#----------
+# load data
+#----------
 # manage paths
 srrid <- "SRR6026510"
 bamdpath <- file.path("eternity", "data", "RI_benchmarking_hx1")
@@ -26,13 +29,22 @@ if(!dir.exists(outdpath)){dir.create(outdpath)}
 ftfname <- "gr-features_superintronic.rda"
 ftfpath <- file.path(outdpath, ftfname)
 
-# get features from gtf
-features <- annofpath %>% collect_parts()
-save(features, file = ftfpath)
 
-# iterate on chr chunks
 features <- get(load(ftfpath))
 chrv <- c(paste0("chr", seq(22)), "chrX", "chrY")
+
+#--------------------------
+# prepare intron annotation
+#--------------------------
+# get features from gtf
+features <- annofpath %>% collect_parts()
+# save annotation file
+save(features, file = ftfpath)
+
+#---------------------------
+# quantify intron expression
+#---------------------------
+# iterate on chr chunks
 for(chr in chrv){
     message("Beginning chr chunk: ", chr, "...")
     bamfname <- paste0(srrid,'.sorted.',chr,'.bam')
@@ -48,6 +60,9 @@ for(chr in chrv){
     message("Saving new results object ", cvgfpath, "...")
     save(cvgof, file = cvgfpath); message("Finished chr chunk: ", chr)}
 
+#-------------
+# save results
+#-------------
 # get the combined data
 lf <- list.files(outdpath)
 lf = lf[grepl("^cov-over-ft_superintronic.*", lf)]
@@ -61,5 +76,3 @@ csv.fpath <- file.path(outdpath, paste0(tfname, ".csv"))
 save(tf, file = rda.fpath)
 write.table(tf, sep = "\t", row.names = F, file = tsv.fpath)
 write.csv(tf, row.names = F, file = csv.fpath)
-#
-
