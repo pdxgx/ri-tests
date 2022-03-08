@@ -29,13 +29,14 @@ sudo bash -c 'cat ./kma_reference/gencode.v35.transcripts.fa ./sm/introns.fa > t
 sudo bowtie2-build --offrate 1 trans_and_introns_sm.fa trans_and_introns_sm
 # get file paths
 tipath=/eternity/data/RI_benchmarking_resources/gencode_v35_annotation_files/trans_and_introns_sm
-fqfpath1=/eternity/data/RI_benchmarking_fastqs/SRR6026510_1.fastq
-fqfpath2=/eternity/data/RI_benchmarking_fastqs/SRR6026510_2.fastq
-newbampath=/home/metamaden/newbam.bam
+fqfpath1=/eternity/data/RI_benchmarking_hx1/SRR2911306_1.fastq
+fqfpath2=/eternity/data/RI_benchmarking_hx1/SRR2911306_2.fastq
+newbampath=/home/metamaden/newbam2.bam
 
 # run alignment 
-sudo bowtie2 -k 200 --rdg 6,5 --rfg 6,5 --score-min L,-.6,-.4 -x $tipath -1 \
-$fqfpath1 -2 $fqfpath2 | samtools view -Sb - > $newbampath
+sudo bowtie2 -k 200 --rdg 6,5 --rfg 6,5 --score-min L,-.6,-.4 -x $tipath -1 $fqfpath1 -2 $fqfpath2 | samtools view -Sb - > $newbampath
+
+sudo bowtie2 -k 200 --rdg 6,5 --rfg 6,5 --score-min L,-.6,-.4 -x $tipath -1 $fqfpath1 -2 $fqfpath2
 
 # sudo gzip $fqfpath1; sudo rm $fqfpath2
 # sudo rm $fqfpath1; sudo rm $fqfpath2

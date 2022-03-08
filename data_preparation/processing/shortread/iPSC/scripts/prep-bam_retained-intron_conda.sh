@@ -25,12 +25,16 @@ conda install -c bioconda samtools=1.3.1
 sudo /opt/anaconda3/envs/ri_bamprep/bin/fastq-dump --accession SRR6026510 \
     --split-3 --outdir . --gzip
 
-#-----------
-# align BAMs
-#-----------
+#-----------------
+# build star index
+#-----------------
 # build star index
 sudo /opt/anaconda3/envs/ri_bamprep/bin/STAR --runMode genomeGenerate \
     --genomeDir STAR_INDEX_DIR --genomeFastaFiles GENCODE_FASTA --sjdbGTFfile 
+
+#-----------
+# align BAMs
+#-----------
 # star index path
 STAR_INDEX_DIR=RI_benchmarking_resources/gencode_v35_annotation_files/STAR_index_gencode_v35/
 STAR_OUTPUT_DIR=RI_benchmarking_hx1
