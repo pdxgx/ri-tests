@@ -1,11 +1,15 @@
 #!/usr/bin/env R
 
 # Author: Sean Maden
-# Format the table of long read ranges.
+# 
+# Format the long read intron ranges table.
+#
 
 library(data.table)
 
-srrid <- "SRR6026510"; run.handle <- "ipsc"
+# set run identifiers
+srrid <- "SRR6026510"
+run.handle <- "ipsc"
 
 #----------
 # load data

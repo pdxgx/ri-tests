@@ -2,25 +2,18 @@
 
 # Author: Sean Maden
 #
-# Format results output from IRFinder-S
+# Format results output from IRFinder-S prior to LWM harmonization.
+# 
 
-srrid <- "SRR6026510"; run.handle <- "ipsc"
+# set run identifiers
+srrid <- "SRR6026510"
+run.handle <- "ipsc"
 
 #----------
 # load data
 #----------
 irfs.fname <- "IRFinder-IR-nondir.txt"
 irfs <- data.table::fread(irfs.fname, header = T, data.table = F)
-
-table(irfs$Warnings)
-#
-#     -              LowCover           LowSplicing          MinorIsoform NonUniformIntronCover 
-# 66592                125971                  2623                 12835                 41958 
-
-table(irfs$Warnings)/nrow(irfs)
-
-#         -              LowCover           LowSplicing          MinorIsoform NonUniformIntronCover 
-# 0.26639038            0.50392633            0.01049288            0.05134431            0.16784610
 
 #--------
 # granges

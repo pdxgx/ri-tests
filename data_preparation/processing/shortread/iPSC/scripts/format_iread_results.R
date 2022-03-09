@@ -1,13 +1,18 @@
 #!/usr/bin/env R
 
 # Author: Sean Maden
-# Format/clean up the iREAD results, removing duplicated regions 
-# with null results. Then get the data formatted as a GRanges object.
+# 
+# Format/clean up the iREAD results prior to LWM harmonization. First, remove 
+# duplicated regions with null results. Then get the data formatted as a 
+# GRanges object.
+#
 
 library(dplyr)
 library(GenomicRanges)
 
-srrid <- "SRR6026510"; run.handle <- "ipsc"
+# set run identifier
+srrid <- "SRR6026510"
+run.handle <- "ipsc"
 
 #----------
 # load data
@@ -30,34 +35,19 @@ ir$intronid <- paste0(ir$chr, ":", ir$start, "-", ir$end)
 # get duplicated features
 dup <- which(duplicated(ir$intronid))
 dup.id <- unique(ir$intronid[dup])
-length(dup.id) 
-# [1] 242035
 
 # get new df for duplicated ids
 which.notdup <- ir$intronid %in% dup.id & !duplicated(ir$intronid)
 df.notdup <- ir[which.notdup,]
-dim(df.notdup) 
-# [1] 242035     11
 # retain max observed expr by dup id
 dfply <- ir[ir$intronid %in% dup.id,]
-dim(dfply) 
-# [1] 5566805      11
 eval.str <- paste0("dfply <- dfply %>% group_by(intronid) ",
                    "%>% summarise(",cname," = max(",cname,", na.rm = T))")
 eval(parse(text = eval.str))
-dim(dfply) 
-# [1] 242035      2
 dfply <- dfply[order(match(dfply$intronid, df.notdup$intronid)),]
-identical(dfply$intronid, df.notdup$intronid) 
-# TRUE
 df.notdup[,cname] <- dfply[,2]
-
 # bind results
 irf <- rbind(ir[!ir$intronid %in% dup.id,], df.notdup)
-dim(ir) 
-# [1] 5566805      11
-dim(irf) 
-# [1] 242035     11
 
 #--------
 # granges

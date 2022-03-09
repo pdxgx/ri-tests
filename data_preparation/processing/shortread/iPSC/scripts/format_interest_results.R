@@ -1,20 +1,24 @@
 #!/usr/bin/env R
 
 # Author: Sean Maden
-# Format the IntEREst results.
+# 
+# Format the IntEREst results prior to LWM harmonization.
+#
 
 library(dplyr)
 library(GenomicRanges)
 
-srrid <- "SRR6026510"; run.handle <- "ipsc"
+# set run identifiers
+srrid <- "SRR6026510"
+run.handle <- "ipsc"
 
+#----------
+# load data
+#----------
 # load the results table
-# it.fname <- paste0("interest_allchr_",srrid,".rda")
-# it <- get(load(it.fname))
 it.fname <- paste0(srrid, "_allchr_interest.tsv")
 it <- read.table(it.fname, sep = "\t")
 it <- it[it$int_ex == "intron",]
-
 # set the colnames
 colnames(it) <- c("chr", "start", "end", "strand",
                   "int_ex", "int_ex_num", "collapsed_transcripts_id",
@@ -31,8 +35,6 @@ it.df$intronid <- paste0(it.df$chr, ":", it.df$start, "-", it.df$end)
 # get the duplicated ids
 dup <- which(duplicated(it.df$intronid))
 dup.id <- unique(it.df$intronid[dup])
-length(dup)
-# [1] 0
 
 #---------------------
 # get granges and save

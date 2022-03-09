@@ -3,19 +3,20 @@
 # Author: Sean Maden
 #
 # Run IntEREst to quantify intron expression from chr-chunked 
-# BAM file.
+# BAM file. This uses the GFF3 reference file for GENCODE v35.
 # 
-# Note:
-# run R with sudo:
+# Run R on the remote server with sudo access:
 # > sudo /lib64/R/bin/R
 
 library(IntEREst)
+
+# set run id
+srrid="SRR6026510"
 
 #----------
 # load data
 #----------
 # define paths
-srrid="SRR6026510"
 results.dpath <- file.path("home", "metamaden", "ri_results", srrid)
 interest.dpath <- file.path(results.dpath, "interest")
 if(!dir.exists(results.dpath)){dir.create(results.dpath)}
@@ -72,9 +73,6 @@ tf <- do.call(rbind, lapply(fnv, function(fn){
     tsvif <- tsvi[tsvi[,1] == chri,]; return(tsvif)}))
 dim(tf)
 tf$intronid <- paste0(tf$chr, ":", tf$begin, "-", tf$end)
-table(duplicated(tf$intronid))
-# FALSE
-# 617212
 
 # save results table
 tfname <- paste0("interest_allchr_", srrid)

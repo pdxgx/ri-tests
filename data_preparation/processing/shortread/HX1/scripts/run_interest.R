@@ -2,15 +2,21 @@
 
 # Author: Sean Maden
 #
-# Run IntEREst on bam file chr chunks.
-
-# run R with sudo
-# sudo /lib64/R/bin/R
+# Run IntEREst to quantify intron expression from chr-chunked 
+# BAM file. This uses the GFF3 reference file for GENCODE v35.
+# 
+# Run R on the remote server with sudo access:
+# > sudo /lib64/R/bin/R
 
 library(IntEREst)
 
-# define paths
+# set run id
 srrid="SRR2911306"
+
+#----------
+# load data
+#----------
+# define paths
 results.dpath <- file.path("home", "metamaden", "ri_results", srrid)
 interest.dpath <- file.path(results.dpath, "interest")
 if(!dir.exists(results.dpath)){dir.create(results.dpath)}
@@ -28,6 +34,9 @@ ref.fpath <- file.path("home", "metamaden", "ri_results",
     "interest_ipsc", "gen35gff3_interest-ref.rda")
 ref <- get(load(ref.fpath))
 
+#---------------
+# process chunks
+#---------------
 # process each bam file chunk
 for(fn in lfv){
     message("Working on file ", fn)
@@ -50,13 +59,22 @@ for(fn in lfv){
     message("Finished with file ", fn)
 }
 
+#------------------
+# get results table
+#------------------
 # read results chunks into single table file
+# interest.dpath <- "."; srrid="SRR6026510"
 fnv <- list.files(interest.dpath)
-fnv <- fnv[grepl("\\.tsv$", fnv)]
+fnv <- fnv[grepl("\\.tsv$", fnv) & grepl("^interest_chr.*", fnv)]
 tf <- do.call(rbind, lapply(fnv, function(fn){
-    data.table::fread(file.path(interest.dpath, fn), sep="\t", data.table = F)}))
+    chri <- gsub("(^interest_|_SRR.*)", "", fn)
+    tsvi <- data.table::fread(file.path(interest.dpath, fn), 
+        sep="\t", data.table = F)
+    tsvif <- tsvi[tsvi[,1] == chri,]; return(tsvif)}))
+dim(tf)
+tf$intronid <- paste0(tf$chr, ":", tf$begin, "-", tf$end)
 
-# save
+# save results table
 tfname <- paste0("interest_allchr_", srrid)
 rda.fpath <- file.path(interest.dpath, paste0(tfname, ".rda"))
 txt.fpath <- file.path(interest.dpath, paste0(tfname, ".txt"))
@@ -64,16 +82,3 @@ csv.fpath <- file.path(interest.dpath, paste0(tfname, ".csv"))
 save(tf,file = rda.fpath)
 write.csv(tf, file = csv.fpath)
 write.table(tf, file = txt.fpath)
-
-# do filter
-
-
-
-
-
-
-
-
-
-
-

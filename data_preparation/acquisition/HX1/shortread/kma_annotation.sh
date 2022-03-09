@@ -11,14 +11,15 @@
 # > introns.fa
 # > and intron_to_transcripts.txt
 
+# get paths
 pyscriptfpath=/usr/lib64/R/library/kma/pre-process/generate_introns.py
-annopath=/eternity/data/RI_benchmarking_resources/gencode_v35_annotation_files
-fastafname=$GRCh38.primary_assembly.genome.fa
-fapath=$annopath/$fastafname
+annopath=/eternity/data/RI_benchmarking_resources/gencode_v35_annotation_files/
+fastafname=GRCh38.primary_assembly.genome.fa
 gtffname=gencode.v35.annotation.gtf
-gtfpath=$annopath/$gtffname
 outdname=kma_annotations
-outdirpath=$annopath/$outdname
+fapath=$annopath$fastafname
+gtfpath=$annopath$gtffname
+outdirpath=$annopath$outdname
 
 # generate the annotation files
 sudo python2 $preprocesspath/$prescript --genome $fapath --gtf $gtfpath --extend 25 \

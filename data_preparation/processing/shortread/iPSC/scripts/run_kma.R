@@ -4,14 +4,18 @@
 #
 # Script to process KMA outputs in R.
 #
+# Remote server instructions:
+# 1. run R with sudo access
+# > sudo /lib64/R/bin/$
 
-# sudo /lib64/R/bin/$
 library(kma)
+
+# set run id
+srrid <- "SRR6026510"
 
 #----------
 # load data
 #----------
-srrid <- "SRR6026510"
 save.dpath <- file.path("home", "metamaden", "ri_results", srrid)
 resources.dpath <- file.path("eternity", "data", "RI_benchmarking_results")
 xprs.dpath <- file.path(resources.dpath, paste0("express_output_",srrid))

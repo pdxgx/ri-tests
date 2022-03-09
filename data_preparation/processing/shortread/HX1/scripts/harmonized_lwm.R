@@ -2,14 +2,28 @@
 
 # Author: Sean Maden
 # 
-# Harmonize short and long read datasets
+# Harmonize short and long read datasets. This script calculates the length-weighted
+# medians (LWMs) across introns with quantified expression. Note that LWMs are 
+# to introns expressed in the long read samples. The script further identifies the 
+# subset of expressed introns meeting tool-specific filter criteria, a.k.a. "
+# called RIs".
+# 
 
 library(data.table)
 library(GenomicRanges)
 library(dplyr)
 library(ggplot2)
 
-srrid <- "SRR2911306"; run.handle <- "hx1"
+# set run identifiers
+srrid <- "SRR2911306"
+run.handle <- "hx1"
+
+#----------
+# load data
+#----------
+# long read granges
+lr.gr.fname <- paste0("granges_longread_",srrid,"-",run.handle,".rda")
+intv.gr <- get(load(lr.gr.fname))
 
 #-----------------
 # helper functions
@@ -46,19 +60,11 @@ grbind_summary <- function(data.gr, intv.gr = intv.gr, cname = "intron_expressio
   return(intv.gr)
 }
 
-#-----------------------
-# load long read granges 
-#-----------------------
-# long read granges
-lr.gr.fname <- paste0("granges_longread_",srrid,"-",run.handle,".rda")
-intv.gr <- get(load(lr.gr.fname))
-length(intv.gr) # 40769
-
 #------------------------------------------------------
 # map SR to LR ranges, all introns and filtered introns
 #------------------------------------------------------
 # iREAD
-# Notes: Filter on fragments >= 20, junction reads >= 1, 
+# Notes: Filter on fragments >= 20, junction reads >= 0.9, 
 # FPKM >= 3, and entropy score >= 0.9 (per tool defaults/paper)
 ir.gr <- get(load(paste0("granges_iread_",srrid,"-",run.handle,".rda")))
 # map all ranges
@@ -116,29 +122,6 @@ irfs.grf <- irfs.gr[irfs.gr$Warnings=="-" & irfs.gr$IRratio > 0.05]
 intv.gr <- grbind_summary(data.gr = irfs.grf, intv.gr = intv.gr, cname = "IRratio", 
                           new.cname = "irfinders_irratio_filtintron")
 
-#------------------
-# summarize results
-#------------------
-# iread
-length(which(intv.gr$iread_fpkm_allintron_lwm>0)) # 7748
-length(which(intv.gr$iread_fpkm_filtintron_lwm>0)) # 895
-
-# interest
-length(which(intv.gr$interest_fpkm_allintron_lwm > 0)) # 32544
-length(which(intv.gr$interest_fpkm_filtintron_lwm > 0)) # 5038
-
-# kma
-length(which(intv.gr$kma_tpm_allintron_lwm > 0)) # 20484
-length(which(intv.gr$kma_tpm_filtintron_lwm > 0)) # 5089
-
-# irfinders
-length(which(intv.gr$irfinders_irratio_allintron_lwm > 0)) # 22168
-length(which(intv.gr$irfinders_irratio_filtintron_lwm > 0)) # 4827
-
-# superintronic
-length(which(intv.gr$superintronic_score_allintron_lwm > 0)) # 15718
-length(which(intv.gr$superintronic_score_filtintron_lwm > 0)) # 5381
-
 #-------------
 # save results
 #-------------
@@ -150,9 +133,9 @@ write.csv(as.data.frame(intv.gr), file = csv.fname, row.names = F)
 gr.fname <- paste0("granges-lrmap_sr-5-methods_", srrid,"-",run.handle,".rda")
 save(intv.gr, file = gr.fname)
 
-#---------------
-# barplot figure
-#---------------
+#--------------------------------------
+# barplot summaries, all vs. called RIs
+#--------------------------------------
 md <- intv.gr@elementMetadata; mdf <- md[,grepl("lwm$", colnames(md))]
 toolv <- unique(gsub("_.*", "", colnames(mdf))); cnv <- colnames(mdf)
 dfp <- do.call(rbind, lapply(toolv, function(tooli){
@@ -180,11 +163,8 @@ bp <- ggplot(dfp, aes(x = level, y = num.introns, fill = Tool)) +
   geom_bar(stat = "identity") + theme_bw() + 
   geom_text(aes(x = level, y = num.introns + 1000, label = num.introns)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.1)) +
-  scale_fill_manual(values = pal) + ggtitle("HX1")
+  scale_fill_manual(values = pal) + ggtitle("iPSC")
 
 # save new figure
 pdf.fname <- paste0("bp_intron-counts_bytool_", srrid,"-",run.handle,".pdf")
 pdf(pdf.fname, 6.5, 4.5); print(bp); dev.off()
-
-
-

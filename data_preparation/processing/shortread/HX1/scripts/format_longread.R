@@ -1,15 +1,21 @@
 #!/usr/bin/env R
 
 # Author: Sean Maden
-# Format the table of long read ranges.
+# 
+# Format the long read intron ranges table.
+#
 
 library(data.table)
+
+# set run identifiers
+srrid <- "SRR2911306"
+run.handle <- "hx1"
 
 #----------
 # load data
 #----------
 # get the long read ranges
-tsv.fname <- "RI_txs_to_read_ids_final_10-28-2021_19.43.18.tsv"
+tsv.fname <- "RI_txs_to_read_ids_final.tsv"
 tsv <- fread(tsv.fname, sep = "\t", header = T, data.table = F)
 
 #---------------------------
@@ -65,5 +71,6 @@ intv.gr <- makeGRangesFromDataFrame(dfgr,
                                     keep.extra.columns = T)
 
 # save granges
-intv.gr.fname <- paste0("granges_longread_", srrid,"-", run.handle, ".rda")
+intv.gr.fname <- paste0("granges_longread_", 
+                        srrid,"-", run.handle, ".rda")
 save(intv.gr, file = intv.gr.fname)

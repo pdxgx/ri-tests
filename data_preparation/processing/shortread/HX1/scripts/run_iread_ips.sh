@@ -13,7 +13,7 @@
 #--------------------
 # manage vars & paths
 #--------------------
-srrid=SRR6026510
+srrid=SRR2911306
 bamdpath='/eternity/data/RI_benchmarking_BAMs'
 bedpath='/eternity/data/RI_benchmarking_resources/gencode_v35_annotation_files/gencode.v35.primary_assembly.introns.bed' 
 ireadpath=iread.py #/home/metamaden/iread/iread.py
