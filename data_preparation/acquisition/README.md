@@ -1,0 +1,1 @@
+isoseq-env.yml describes the conda environment parameters for long-read processing of both HX1 and iPSC (see bash scripts).
