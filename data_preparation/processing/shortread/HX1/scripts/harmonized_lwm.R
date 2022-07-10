@@ -197,7 +197,7 @@ dfp$Tool <- ifelse(dfp$tool == "interest", "IntEREst",
 # color palette
 pal <- c('IRFinder-S' = '#e1665d', 'superintronic' = '#f8b712', 
          'iREAD' = '#689404', 'IntEREst' = '#745bad', 'KMA' = '#33a2b7',
-         'rMATS' = '#DAF7A6', 'MAJIQ' = '#FFC0C0', 'SUPPA2' = '#B7B7B7')
+         'rMATS' = '#DAF7A6', 'MAJIQ' = '#FFC0C0', 'SUPPA2' = '#abddff')
 
 # get plot object
 bp <- ggplot(dfp, aes(x = level, y = num.introns, fill = Tool)) + 
