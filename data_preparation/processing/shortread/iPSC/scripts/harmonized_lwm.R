@@ -149,15 +149,25 @@ intv.gr <- grbind_summary(data.gr = rm.grf, intv.gr = intv.gr,
                           cname = "rmats.inclvl", 
                           new.cname = "rmats_inclvl_filtintron")
 
+# SUPPA2
+sp.gr <- get(load(paste0("granges_suppa2_", srrid,"-",run.handle,".rda")))
+# map all ranges
+intv.gr <- grbind_summary(data.gr = sp.gr, intv.gr = intv.gr, cname = "psi", 
+                          new.cname = "suppa2_psi_allintron")
+# map filtered ranges
+sp.gr <- sp.gr[sp.gr$psi > 0.8]
+intv.gr <- grbind_summary(data.gr = sp.gr, intv.gr = intv.gr, cname = "psi", 
+                          new.cname = "suppa2_psi_filtintron")
+
 #-------------
 # save results
 #-------------
 # write new table
-csv.fname <- paste0("granges-lrmap_sr-7-methods_", srrid,"-",run.handle,".csv")
+csv.fname <- paste0("granges-lrmap_sr-8-methods_", srrid,"-",run.handle,".csv")
 write.csv(as.data.frame(intv.gr), file = csv.fname, row.names = F)
 
 # save new bound data
-gr.fname <- paste0("granges-lrmap_sr-7-methods_", srrid,"-",run.handle,".rda")
+gr.fname <- paste0("granges-lrmap_sr-8-methods_", srrid,"-",run.handle,".rda")
 save(intv.gr, file = gr.fname)
 
 #--------------------------------------
@@ -180,13 +190,14 @@ dfp$Tool <- ifelse(dfp$tool == "interest", "IntEREst",
                           ifelse(dfp$tool == "iread", "iREAD",
                                  ifelse(dfp$tool == "irfinders", "IRFinder-S",
                                         ifelse(dfp$tool == "rmats", "rMATS",
-                                               ifelse(dfp$tool == "majiq", 
-                                                      "MAJIQ", dfp$tool))))))
+                                               ifelse(dfp$tool == "majiq", "MAJIQ", 
+                                                      ifelse(dfp$tool == "suppa2", 
+                                                      "SUPPA2", dfp$tool)))))))
 
 # color palette
 pal <- c('IRFinder-S' = '#e1665d', 'superintronic' = '#f8b712', 
          'iREAD' = '#689404', 'IntEREst' = '#745bad', 'KMA' = '#33a2b7',
-         'rMATS' = '#DAF7A6', 'MAJIQ' = '#FFC0C0')
+         'rMATS' = '#DAF7A6', 'MAJIQ' = '#FFC0C0', 'SUPPA2' = '#B7B7B7')
 
 # get plot object
 bp <- ggplot(dfp, aes(x = level, y = num.introns, fill = Tool)) + 
