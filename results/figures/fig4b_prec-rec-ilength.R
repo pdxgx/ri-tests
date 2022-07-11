@@ -12,15 +12,19 @@ library(gridExtra)
 # load data
 #----------
 plot.titlev <- c("HX1", "iPSC")
-tsv.fname.hx1 <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR2911306-hx1.csv"
-tsv.fname.ipsc <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR6026510-ipsc.csv"
+# tsv.fname.hx1 <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR2911306-hx1.csv"
+# tsv.fname.ipsc <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR6026510-ipsc.csv"
+tsv.fname.hx1 <- "target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR2911306-hx1.csv"
+tsv.fname.ipsc <- "target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR6026510-ipsc.csv"
+
 ltsv <- list()
 ltsv[["iPSC"]] <- read.csv(tsv.fname.ipsc)
 ltsv[["HX1"]] <- read.csv(tsv.fname.hx1)
 
 # get the color palette:
 pal <- c('IRFinder-S' = '#e1665d', 'superintronic' = '#f8b712', 
-         'iREAD' = '#689404', 'IntEREst' = '#745bad', 'KMA' = '#33a2b7')
+         'iREAD' = '#689404', 'IntEREst' = '#745bad', 'KMA' = '#33a2b7',
+         'rMATS' = '#DAF7A6', 'MAJIQ' = '#FFC0C0', 'SUPPA2' = '#abddff')
 
 #-----------------
 # helper functions
@@ -29,7 +33,9 @@ pal <- c('IRFinder-S' = '#e1665d', 'superintronic' = '#f8b712',
 dfpr_bylenfilt <- function(tsv, len.filt, min.lr = 0.1, 
                            intron.type.cname = "filtintron", 
                            lr.metric.cname = "max_intron_persistence",
-                           tool.strv = c("interest", "superintronic", "iread", "kma", "irfinders")){
+                           tool.strv = c("interest", "superintronic", "iread", 
+                                         "kma", "irfinders", "rmats", "majiq",
+                                         "suppa2")){
   do.call(rbind, lapply(len.filt, function(min.len){
     do.call(rbind, lapply(tool.strv, function(tooli){
       # get main df
@@ -60,7 +66,8 @@ dfpr_bylenfilt_binned <- function(tsv, len.filt, min.lr = 0.1, bin.size = 500,
                                   intron.type.cname = "filtintron", 
                                   lr.metric.cname = "max_intron_persistence",
                                   tool.strv = c("interest", "superintronic", 
-                                                "iread", "kma", "irfinders")){
+                                                "iread", "kma", "irfinders",
+                                                "rmats", "majiq", "suppa2")){
   do.call(rbind, lapply(seq(length(len.filt)), function(ii){
     do.call(rbind, lapply(tool.strv, function(tooli){
       # get main df
@@ -112,7 +119,8 @@ ldfpr <- lapply(ltsv, function(tsvi){
 
 # get the color palette:
 pal <- c('IRFinder-S' = '#e1665d', 'superintronic' = '#f8b712', 
-         'iREAD' = '#689404', 'IntEREst' = '#745bad', 'KMA' = '#33a2b7')
+         'iREAD' = '#689404', 'IntEREst' = '#745bad', 'KMA' = '#33a2b7',
+         'rMATS' = '#DAF7A6', 'MAJIQ' = '#FFC0C0', 'SUPPA2' = '#abddff')
 # set transparency
 alpha.val <- 1
 # set point and line size
@@ -212,6 +220,9 @@ ldfpr <- lapply(ltsv, function(tsvi){
   dfpr[dfpr$tool=="iread",]$tool <- "iREAD"
   dfpr[dfpr$tool=="kma",]$tool <- "KMA"
   dfpr[dfpr$tool=="irfinders",]$tool <- "IRFinder-S"
+  dfpr[dfpr$tool=="rmats",]$tool <- "rMATS"
+  dfpr[dfpr$tool=="majiq",]$tool <- "MAJIQ"
+  dfpr[dfpr$tool=="suppa2",]$tool <- "SUPPA2"
   dfpr$Tool <- dfpr$tool # format vars
   dfpr$`RI detection\ntool` <- dfpr$tool; dfpr
 })

@@ -14,8 +14,10 @@ library(gridExtra)
 plot.titlev <- c("HX1", "iPSC")
 #tsv.fname.ipsc <- "LR_annotated_granges-lrmap_sr-5-methods_SRR6026510-ipsc.csv"
 #tsv.fname.hx1 <- "LR_annotated_granges-lrmap_sr-5-methods_SRR2911306-hx1.csv"
-tsv.fname.hx1 <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR2911306-hx1.csv"
-tsv.fname.ipsc <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR6026510-ipsc.csv"
+# tsv.fname.hx1 <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR2911306-hx1.csv"
+# tsv.fname.ipsc <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR6026510-ipsc.csv"
+tsv.fname.hx1 <- "target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR2911306-hx1.csv"
+tsv.fname.ipsc <- "target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR6026510-ipsc.csv"
 tsv.ipsc <- read.csv(tsv.fname.ipsc)
 tsv.hx1 <- read.csv(tsv.fname.hx1)
 # define the lr metric
@@ -35,7 +37,8 @@ ltsv.all <- list("iPSC" = tsv.ipsc[,cnv], "HX1" = tsv.hx1[,cnv])
 # get precision and recall from a dfp of truth metrics
 dfpr_bylrfilt <- function(tsv, lrfilt = seq(0.1, 0.9, 0.1), 
                           intron.type.cname = "filtintron", lr.metric.cname = "max_intron_persistence",
-                          tool.strv = c("interest", "superintronic", "iread", "kma", "irfinders")){
+                          tool.strv = c("interest", "superintronic", "iread", "kma", "irfinders",
+                                        "rmats", "majiq", "suppa2")){
   do.call(rbind, lapply(lrfilt, function(min.lr){
     do.call(rbind, lapply(tool.strv, function(tooli){
       # get main df
@@ -63,7 +66,8 @@ dfpr_bylrfilt <- function(tsv, lrfilt = seq(0.1, 0.9, 0.1),
 # get quantiles data
 #-------------------
 # get prec/rec across min lr filters
-tool.strv = c("interest", "superintronic", "iread", "kma", "irfinders")
+tool.strv = c("interest", "superintronic", "iread", "kma", "irfinders", "rmats",
+              "majiq", "suppa2")
 lltsv <- list("potential" = ltsv.all, "called" = ltsv)
 ldfp <- lapply(seq(length(lltsv)), function(ii){
   intron.type <- names(lltsv)[ii]
@@ -100,6 +104,9 @@ dfp[dfp$tool=="interest",]$tool <- "IntEREst"
 dfp[dfp$tool=="iread",]$tool <- "iREAD"
 dfp[dfp$tool=="irfinders",]$tool <- "IRFinder-S"
 dfp[dfp$tool=="kma",]$tool <- "KMA"
+dfp[dfp$tool=="majiq",]$tool <- "MAJIQ"
+dfp[dfp$tool=="rmats",]$tool <- "rMATS"
+dfp[dfp$tool=="suppa2",]$tool <- "SUPPA2"
 dfp$Tool <- dfp$tool
 dfp$sample <- gsub(".*_", "", dfp$type)
 dfp$intron_type <- gsub("_.*", "", dfp$type)
@@ -125,15 +132,16 @@ dfp.ipsc <- cbind(dfp.ipsc.call, dfp.ipsc.pot)
 #-----------------
 # get the color palette:
 pal <- c('IRFinder-S' = '#e1665d', 'superintronic' = '#f8b712', 
-         'iREAD' = '#689404', 'KMA' = '#33a2b7', 'IntEREst' = '#745bad')
+         'iREAD' = '#689404', 'IntEREst' = '#745bad', 'KMA' = '#33a2b7',
+         'rMATS' = '#DAF7A6', 'MAJIQ' = '#FFC0C0', 'SUPPA2' = '#abddff')
 
 # axis maxima
-prec.called.max <- 0.06
-prec.potential.max <- 0.025
-rec.called.max <- 0.35
-rec.potential.max <- 0.71
-f1.called.max <- 0.1
-f1.potential.max <- 0.05
+prec.called.max <- 0.24
+prec.potential.max <- 0.12
+rec.called.max <- 0.65
+rec.potential.max <- 0.76
+f1.called.max <- 0.25
+f1.potential.max <- 0.18
 
 # error bar widths/heights
 prec.ebw.xaxis <- 0.005
@@ -158,9 +166,9 @@ prec.hx1 <- ggplot(dfp.hx1[dfp.hx1$metric_called == "precision",],
         axis.text.x = element_blank()) +
   ggtitle("Precision") +
   scale_y_continuous(limits = c(0, prec.called.max), 
-                     breaks = seq(0, prec.called.max, by = 0.02)) +
+                     breaks = seq(0, prec.called.max, by = 0.05)) +
   scale_x_continuous(limits = c(0, prec.potential.max), 
-                     breaks = seq(0, prec.potential.max, by = 0.01))
+                     breaks = seq(0, prec.potential.max, by = 0.05))
 
 prec.ipsc <- ggplot(dfp.ipsc[dfp.ipsc$metric_called == "precision",], 
                     aes(x = value50_potential, y = value50_called, color = tool_called)) + 
@@ -175,9 +183,9 @@ prec.ipsc <- ggplot(dfp.ipsc[dfp.ipsc$metric_called == "precision",],
         axis.title.x = element_blank(), 
         axis.title.y = element_blank()) +
   scale_y_continuous(limits = c(0, prec.called.max), 
-                     breaks = seq(0, prec.called.max, by = 0.02)) +
+                     breaks = seq(0, prec.called.max, by = 0.05)) +
   scale_x_continuous(limits = c(0, prec.potential.max), 
-                     breaks = seq(0, prec.potential.max, by = 0.01))
+                     breaks = seq(0, prec.potential.max, by = 0.05))
 
 rec.hx1 <- ggplot(dfp.hx1[dfp.hx1$metric_called == "recall",], 
                   aes(x = value50_potential, y = value50_called, color = tool_called)) + 
@@ -194,7 +202,7 @@ rec.hx1 <- ggplot(dfp.hx1[dfp.hx1$metric_called == "recall",],
         axis.text.x = element_blank()) +
   ggtitle("Recall") +
   scale_y_continuous(limits = c(0, rec.called.max), 
-                     breaks = seq(0, rec.called.max, by = 0.1))
+                     breaks = seq(0, rec.called.max, by = 0.2))
 
 rec.ipsc <- ggplot(dfp.ipsc[dfp.ipsc$metric_called == "recall",], 
                   aes(x = value50_potential, y = value50_called, color = tool_called)) + 
@@ -209,7 +217,7 @@ rec.ipsc <- ggplot(dfp.ipsc[dfp.ipsc$metric_called == "recall",],
         axis.title.x = element_blank(), 
         axis.title.y = element_blank()) +
   scale_y_continuous(limits = c(0, rec.called.max), 
-                     breaks = seq(0, rec.called.max, by = 0.1))
+                     breaks = seq(0, rec.called.max, by = 0.2))
 
 f1.hx1 <- ggplot(dfp.hx1[dfp.hx1$metric_called == "f1score",], 
                  aes(x = value50_potential, y = value50_called, color = tool_called)) + 
@@ -226,9 +234,9 @@ f1.hx1 <- ggplot(dfp.hx1[dfp.hx1$metric_called == "f1score",],
         axis.text.x = element_blank()) +
   ggtitle("F1-score") +
   scale_y_continuous(limits = c(0, f1.called.max), 
-                     breaks = seq(0, f1.called.max, by = 0.02)) +
+                     breaks = seq(0, f1.called.max, by = 0.05)) +
   scale_x_continuous(limits = c(0, f1.potential.max), 
-                     breaks = seq(0, f1.potential.max, by = 0.01))
+                     breaks = seq(0, f1.potential.max, by = 0.05))
   
 
 f1.ipsc <- ggplot(dfp.ipsc[dfp.ipsc$metric_called == "f1score",], 
@@ -244,9 +252,9 @@ f1.ipsc <- ggplot(dfp.ipsc[dfp.ipsc$metric_called == "f1score",],
         axis.title.x = element_blank(), 
         axis.title.y = element_blank()) +
   scale_y_continuous(limits = c(0, f1.called.max), 
-                     breaks = seq(0, f1.called.max, by = 0.02)) +
+                     breaks = seq(0, f1.called.max, by = 0.05)) +
   scale_x_continuous(limits = c(0, f1.potential.max), 
-                     breaks = seq(0, f1.potential.max, by = 0.01))
+                     breaks = seq(0, f1.potential.max, by = 0.05))
   
 dfp.ipsc$Tool <- dfp.ipsc$tool_called
 plot.legend <- ggplot(dfp.ipsc, aes(x = value50_potential, 
