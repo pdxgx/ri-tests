@@ -16,6 +16,7 @@ tsv.fname.hx1 <- "called_RI_data_summary_HX1.tsv"
 ltsv <- list()
 ltsv[["iPSC"]] <- read.table(tsv.fname.ipsc, sep = "\t", header = T)
 ltsv[["HX1"]] <- read.table(tsv.fname.hx1, sep = "\t", header = T)
+
 # get cRNA ranges
 crna <- read.table("intronic_circRNAs_GRCh38.txt", sep = " ")
 crna$chr <- gsub(":.*", "", crna[,1])
@@ -25,8 +26,9 @@ crna.gr <- makeGRangesFromDataFrame(crna)
 
 # color palettes
 pal <- c("FN" = "#6d9cc6", "FP" = "#d8788a", "TP" = "#9db92c")
-pal.sr <- c('IRFinder-S' = '#e1665d', 'superintronic' = '#f8b712',
-            'iREAD' = '#689404', 'IntEREst' = '#745bad', 'KMA' = '#33a2b7')
+pal.sr <- c('IRFinder-S' = '#e1665d', 'superintronic' = '#f8b712', 
+         'iREAD' = '#689404', 'IntEREst' = '#745bad', 'KMA' = '#33a2b7',
+         'rMATS' = '#DAF7A6', 'MAJIQ' = '#FFC0C0', 'SUPPA2' = '#abddff')
 
 #-----------------
 # helper functions
@@ -55,14 +57,16 @@ get_lgroup <- function(tsv, min.tmetric = 4,
 #------------------------------
 # get crna overlap -- by srtool
 #------------------------------
-toolv <- c("iread", "interest", "superintronic", "kma", "irfinders")
+toolv <- c("iread", "interest", "superintronic", "kma", "irfinders", 
+           "majiq", "rmats", "suppa2")
 
 # get sets
 # get filtered intron ids/coords
 lgroup <- lapply(ltsv, function(tsvi){
   lgroupi <- lapply(toolv, function(tooli){
     tsvf <- tsvi[!duplicated(tsvi$intron),]
-    filt.col <- grepl(".*filtintron_lwm$", colnames(tsvf)) & grepl(tooli, colnames(tsvf))
+    filt.col <- grepl(".*filtintron_lwm$", colnames(tsvf)) & 
+      grepl(tooli, colnames(tsvf))
     which.nz <- which(tsvf[,filt.col] > 0 & !is.na(tsvf[,filt.col]))
     return(tsvf[which.nz,]$intron)
   })
@@ -70,6 +74,7 @@ lgroup <- lapply(ltsv, function(tsvi){
   lgroupi
 })
 names(lgroup) <- names(ltsv)
+
 # parse overlaps by intron coords
 dfol.sr <- do.call(rbind, lapply(seq(length(lgroup)), function(ii){
   samplei <- names(lgroup)[ii]; lgroupi <- lgroup[[samplei]]
@@ -92,12 +97,16 @@ dfol.sr <- do.call(rbind, lapply(seq(length(lgroup)), function(ii){
 # make new barplots
 # get plot data
 dfpr <- dfol.sr
-lvlv <- c("IntEREst", "KMA", "iREAD", "superintronic", "IRFinder-S")
+lvlv <- c("IntEREst", "KMA", "iREAD", "superintronic", "IRFinder-S",
+          "MAJIQ", "rMATS", "SUPPA2")
 dfpr$Tool <- factor(dfpr$tmetric, levels = lvlv)
 dfpr[dfpr$tmetric=="interest",]$Tool <- "IntEREst"
 dfpr[dfpr$tmetric=="iread",]$Tool <- "iREAD"
 dfpr[dfpr$tmetric=="kma",]$Tool <- "KMA"
 dfpr[dfpr$tmetric=="irfinders",]$Tool <- "IRFinder-S"
+dfpr[dfpr$tmetric=="majiq",]$Tool <- "MAJIQ"
+dfpr[dfpr$tmetric=="rmats",]$Tool <- "rMATS"
+dfpr[dfpr$tmetric=="suppa2",]$Tool <- "SUPPA2"
 # format plot data
 dfpr$perc.intron.ol <- 100*dfpr$fract.intron.ol
 dfpr$`Truth\nmetric` <- dfpr$tmetric.label
@@ -112,13 +121,14 @@ gg.crna <- gg.crna + facet_wrap(~sample, nrow = 2)
 
 # save new figures
 plot.fname <- "ggbp_crna-overlaps_by-srtool_combined-2samples"
+width <- 4; height <- 2.5
 # new pdf
 pdf.fname <- paste0(plot.fname, ".pdf")
-pdf(pdf.fname, 3, 2.5)
+pdf(pdf.fname, width, height)
 print(gg.crna); dev.off()
 # new png
 png.fname <- paste0(plot.fname, ".png")
-png(png.fname, width = 3.5, height = 2, res = 500, units = "in")
+png(png.fname, width = width, height = height, res = 500, units = "in")
 gg.crna; dev.off()
 
 #-------------------------------------------------
