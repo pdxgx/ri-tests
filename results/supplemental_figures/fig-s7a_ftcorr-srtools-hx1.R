@@ -17,7 +17,7 @@ plot.title <- "HX1"
 #-----------
 # tsv called RIs
 # tsv.fname <- "called_RI_data_summary_HX1featureannotated.tsv"
-tsv.fname <- "called_RI_data_summary_HX1_gc.tsv"
+tsv.fname <- "called_RI_data_summary_HX1featureannotated_GCcontent.tsv"
 tsv.bi <- read.table(tsv.fname, sep = "\t", header = T)
 dim(tsv.bi)
 

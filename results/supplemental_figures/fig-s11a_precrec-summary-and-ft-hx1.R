@@ -18,7 +18,8 @@ plot.title <- "HX1"
 # tsv called RIs
 # tsv.fname <- "nonzero_RI_data_summary_HX1featureannotated.tsv"
 # tsv <- read.table(tsv.fname, sep = "\t", header = T)
-tsv.fname <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR2911306-hx1.csv"
+# tsv.fname <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR2911306-hx1.csv"
+tsv.fname <- "target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR2911306-hx1.csv"
 tsv <- read.csv(tsv.fname, header = T)
 
 #-----------------
@@ -57,7 +58,8 @@ dfpr_bylrfilt <- function(tsv, lrfilt = seq(0.1, 0.9, 0.1),
 # get prec/rec across min lr filters
 #-----------------------------------
 # get list of dfpr objects
-tool.strv = c("interest", "superintronic", "iread", "kma", "irfinders")
+tool.strv = c("interest", "superintronic", "iread", "kma", "irfinders", "majiq", 
+              "rmats", "suppa2")
 dfpr <- dfpr_bylrfilt(tsv)
 
 # get f1 score
@@ -68,8 +70,10 @@ dfpr$Tool <- ifelse(dfpr$tool=="interest", "IntEREst",
                     ifelse(dfpr$tool == "superintronic", "superintronic",
                            ifelse(dfpr$tool == "iread", "iREAD",
                                   ifelse(dfpr$tool == "kma", "KMA",
-                                         ifelse(dfpr$tool == "irfinder", "IRFinder-S", "NA")))))
-
+                                         ifelse(dfpr$tool == "irfinder", "IRFinder-S", 
+                                                ifelse(dfpr$tool=="majiq", "MAJIQ",
+                                                       ifelse(dfpr$tool == "rmats", "rMATS",
+                                                              ifelse(dfpr$tool == "suppa2", "SUPPA2", NA))))))))
 #-------------------
 # get quantiles data
 #-------------------
@@ -111,6 +115,9 @@ dfp[dfp$tool=="interest",]$tool <- "IntEREst"
 dfp[dfp$tool=="iread",]$tool <- "iREAD"
 dfp[dfp$tool=="irfinders",]$tool <- "IRFinder-S"
 dfp[dfp$tool=="kma",]$tool <- "KMA"
+dfp[dfp$tool=="majiq",]$tool <- "MAJIQ"
+dfp[dfp$tool=="rmats",]$tool <- "rMATS"
+dfp[dfp$tool=="suppa2",]$tool <- "SUPPA2"
 dfp$`RI detection\ntool` <- dfp$tool
 
 #--------------------------------------------
