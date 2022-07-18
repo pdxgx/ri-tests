@@ -17,7 +17,6 @@ ltsv <- list()
 ltsv[["iPSC"]] <- read.table(tsv.fname.ipsc, sep = "\t", header = T)
 ltsv[["HX1"]] <- read.table(tsv.fname.hx1, sep = "\t", header = T)
 
-
 #---------------------------------
 # pairs plots -- no transformation
 #---------------------------------
@@ -26,7 +25,8 @@ lgg <- lapply(seq(length(ltsv)), function(ii){
   tsvi <- ltsv[[ii]]; samplei <- names(ltsv)[ii]
   tsvi <- tsvi[!duplicated(tsvi$intron),]
   tsvi <- tsvi[,grepl(".*lwm$", colnames(tsvi))]
-  colnames(tsvi) <- c("iREAD", "IntEREst", "superintronic", "KMA", "IRFinder-S")
+  colnames(tsvi) <- c("iREAD", "IntEREst", "superintronic", "KMA", "IRFinder-S",
+                      "MAJIQ", "rMATS", "SUPPA2")
   colnames(tsvi) <- gsub("_.*", "", colnames(tsvi))
   ggpairs(tsvi, title= paste0(samplei),
           upper = list(continuous = wrap("points", alpha = 0.3), 
@@ -39,13 +39,16 @@ lgg <- lapply(seq(length(ltsv)), function(ii){
 # save figures
 plot.fname.ipsc <- "ggpairs-srtool-cor_ipsc"
 plot.fname.hx1 <- "ggpairs-srtool-cor_hx1"
+width <- 15; height <- 15
 # pdf
-pdf(paste0(plot.fname.hx1, ".pdf"), 8, 8)
+pdf(paste0(plot.fname.hx1, ".pdf"), width, height)
 lgg[["HX1"]]; dev.off()
-pdf(paste0(plot.fname.ipsc, ".pdf"), 8, 8)
+pdf(paste0(plot.fname.ipsc, ".pdf"), width, height)
 lgg[["iPSC"]]; dev.off()
 # png
-png(paste0(plot.fname.hx1, ".png"), width = 8, height = 8, units = "in", res = 500)
-lgg[["HX1"]]; dev.off()
-png(paste0(plot.fname.ipsc, ".png"), width = 8, height = 8, units = "in", res = 500)
-lgg[["iPSC"]]; dev.off()
+# png(paste0(plot.fname.hx1, ".png"), width = width, height = height, 
+#    units = "in", res = 500)
+# lgg[["HX1"]]; dev.off()
+# png(paste0(plot.fname.ipsc, ".png"), width = width, height = height, 
+#    units = "in", res = 500)
+# lgg[["iPSC"]]; dev.off()
