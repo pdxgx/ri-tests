@@ -160,7 +160,8 @@ dev.off()
 pal <- c("FN" = "#6d9cc6", "FP" = "#d8788a", "TP" = "#9db92c", "TN" = "#ffc18f")
 
 # get the plot data
-toolv <- c("IntEREst", "iREAD", "IRFinder.S", "superintronic", "kma")
+toolv <- c("IntEREst", "iREAD", "IRFinder.S", "superintronic", "kma", "majiq", 
+           "rmats", "suppa2")
 cnv <- colnames(lgenes[[1]]); 
 dfp <- do.call(rbind, lapply(names(lgenes), function(samplei){
   mgenei <- lgenes[[samplei]]
