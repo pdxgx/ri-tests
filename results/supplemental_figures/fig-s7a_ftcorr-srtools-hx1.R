@@ -26,7 +26,7 @@ dim(tsv.bi)
 #--------------
 # make dfp
 cnv.comp1 <- c("width", "intron_position_in_tx", "total_overlapping_features", 
-               "max_features_per_base", "X._bases_overlapped", "gc.fract")
+               "max_features_per_base", "X._bases_overlapped", "gc_fract")
 tsvf <- tsv.bi
 which.cnv <- grepl(".*weighted_median$|lwm$", colnames(tsvf))
 cnv.comp2 <- colnames(tsvf)[which.cnv]
@@ -56,6 +56,7 @@ dfp[grepl("max_features_per_base", dfp$var2),]$var2 <- "Max feat. per base"
 dfp[grepl("total_overlapping", dfp$var2),]$var2 <- "Total overlapping feat."
 dfp[grepl("width", dfp$var2),]$var2 <- "Intron length (bp)"
 dfp[grepl("X._bases", dfp$var2),]$var2 <- "Bases overlapping feat."
+dfp[grepl("gc_fract", dfp$var2),]$var2 <- "GC fraction"
 dfp$`Rho` <- dfp$cor.rho
 dfp$label <- as.character(round(as.numeric(dfp$cor.rho), 2))
 
@@ -67,7 +68,7 @@ ggcor <- ggplot(dfp, aes(x = var1, y = var2, fill = `Rho`)) +
   geom_tile(color = "firebrick", size = 1) + theme_bw() + ylab("Intron property") +
   theme(axis.text.x = element_text(angle = 90, hjust = 0.9, vjust = 0.1),
         axis.title.x = element_blank(), legend.position = "none") +
-  geom_text(aes(label = label), color = "#6B6B6B") + ggtitle(plot.title) + 
+  geom_text(aes(label = label), color = "black") + ggtitle(plot.title) + 
   scale_fill_gradient2(low = "#520B71", mid = "white", midpoint = 0, high = "#E68400")
 
 plot.legend <- ggplot(dfp, aes(x = var1, y = var2, fill = Rho)) + geom_tile(color = "white") + 
@@ -77,14 +78,15 @@ plot.legend <- ggplot(dfp, aes(x = var1, y = var2, fill = Rho)) + geom_tile(colo
 plot.legend <- get_legend(plot.legend)
 
 # save new figs
+width <- 7; height <- 5
 plot.fname <- paste0("mcor_intron-features_sr-ir-5tools_", srrid,"-",run.handle)
 lm <- matrix(c(rep(1, 6), 2),nrow = 1)
 ylab.str <- paste0(paste0(rep(" ", 15), collapse = ""), "Intron feature")
 # save new pdf
-pdf(paste0(plot.fname, ".pdf"), 6, 4)
+pdf(paste0(plot.fname, ".pdf"), width, height)
 grid.arrange(ggcor, as_ggplot(plot.legend), nrow = 1, layout_matrix = lm)
 dev.off()
 # save new png
-png(paste0(plot.fname, ".png"), width = 5,  height = 3.1, res = 500, units = "in")
+png(paste0(plot.fname, ".png"), width = width,  height = height, res = 500, units = "in")
 grid.arrange(ggcor, as_ggplot(plot.legend), nrow = 1, layout_matrix = lm)
 dev.off()
