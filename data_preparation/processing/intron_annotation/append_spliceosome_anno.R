@@ -15,8 +15,8 @@ u2 <- read.table("GRCh38_U2.bed", sep = "\t")
 
 # get intron tables
 plot.titlev <- c("HX1", "iPSC")
-tsv.fname.ipsc <- "called_RI_data_summary_iPSCfeatureannotated.tsv"
-tsv.fname.hx1 <- "called_RI_data_summary_HX1featureannotated.tsv"
+tsv.fname.ipsc <- "called_RI_data_summary_iPSCfeatureannotated_GCcontent.tsv"
+tsv.fname.hx1 <- "called_RI_data_summary_HX1featureannotated_GCcontent.tsv"
 ltsv <- list()
 ltsv[["iPSC"]] <- read.table(tsv.fname.ipsc, sep = "\t", header = T)
 ltsv[["HX1"]] <- read.table(tsv.fname.hx1, sep = "\t", header = T)
@@ -62,8 +62,8 @@ annov[intersect(queryHits(u2.fol),queryHits(u12.fol))] <- "other"
 tsv.ipsc$intron_type_annotation <- annov
 
 # save new files
-hx1.cont.fname = "called-ri_data-summary_HX1_featureannotated_ianno.tsv"
+hx1.cont.fname = "called_RI_data_summary_HX1featureannotated_GCcontent_splicetype.tsv"
 write.table(tsv.hx1, file = hx1.cont.fname, row.names = F, sep = "\t")
 # ipsc
-ipsc.cont.fname = "called-ri_data-summary_iPSC_featureannotated_ianno.tsv"
+ipsc.cont.fname = "called_RI_data_summary_iPSCfeatureannotated_GCcontent_splicetype.tsv"
 write.table(tsv.ipsc, file = ipsc.cont.fname, row.names = F, sep = "\t")
