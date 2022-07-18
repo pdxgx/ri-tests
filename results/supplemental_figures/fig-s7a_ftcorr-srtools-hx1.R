@@ -16,7 +16,8 @@ plot.title <- "HX1"
 # load data
 #-----------
 # tsv called RIs
-tsv.fname <- "called_RI_data_summary_HX1featureannotated.tsv"
+# tsv.fname <- "called_RI_data_summary_HX1featureannotated.tsv"
+tsv.fname <- "called_RI_data_summary_HX1_gc.tsv"
 tsv.bi <- read.table(tsv.fname, sep = "\t", header = T)
 dim(tsv.bi)
 
@@ -25,7 +26,7 @@ dim(tsv.bi)
 #--------------
 # make dfp
 cnv.comp1 <- c("width", "intron_position_in_tx", "total_overlapping_features", 
-               "max_features_per_base", "X._bases_overlapped")
+               "max_features_per_base", "X._bases_overlapped", "gc.fract")
 tsvf <- tsv.bi
 which.cnv <- grepl(".*weighted_median$|lwm$", colnames(tsvf))
 cnv.comp2 <- colnames(tsvf)[which.cnv]
@@ -33,6 +34,7 @@ compv <- paste0(cnv.comp2, ":", rep(cnv.comp1, each = length(cnv.comp2)))
 dfcor <- do.call(rbind, lapply(seq(length(compv)), function(ii){
   var1 <- gsub(":.*", "", compv[ii])
   var2 <- gsub(".*:", "", compv[ii])
+  message("Comparing ", var1, " : ", var2)
   tsvff <- tsvf[tsvf[,var2] > 0,]
   cti <- cor.test(tsvff[,var1], tsvff[,var2])
   data.frame(cor.pval = format(cti$p.value, scientific = T), 
@@ -46,6 +48,9 @@ dfp[grepl("iread", dfp$var1),]$var1 <- "iREAD"
 dfp[grepl("irfinders", dfp$var1),]$var1 <- "IRFinder-S"
 dfp[grepl("kma", dfp$var1),]$var1 <- "KMA"
 dfp[grepl("superintronic", dfp$var1),]$var1 <- "superintronic"
+dfp[grepl("majiq", dfp$var1),]$var1 <- "MAJIQ"
+dfp[grepl("rmats", dfp$var1),]$var1 <- "rMATS"
+dfp[grepl("suppa2", dfp$var1),]$var1 <- "SUPPA2"
 dfp[grepl("position_in_tx", dfp$var2),]$var2 <- "Transcript position"
 dfp[grepl("max_features_per_base", dfp$var2),]$var2 <- "Max feat. per base"
 dfp[grepl("total_overlapping", dfp$var2),]$var2 <- "Total overlapping feat."
