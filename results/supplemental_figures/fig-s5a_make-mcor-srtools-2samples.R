@@ -20,7 +20,8 @@ lgrpile <- lirv <- list()
 lsamp <- lapply(seq(length(srridv)), function(ii){
   srrid <- srridv[ii]; run.handle <- run.handlev[ii]
   dname <- paste0(srrid, "_", run.handle)
-  irv.fname <- paste0("granges-lrmap_sr-5-methods_", srrid,"-",run.handle,".rda")
+  # irv.fname <- paste0("granges-lrmap_sr-5-methods_", srrid,"-",run.handle,".rda")
+  irv.fname <- paste0("granges-lrmap_sr-8-methods_", srrid,"-",run.handle,".rda")
   irv <- get(load(file.path(dname, irv.fname)))
   # get median gene coverage
   mpile.fname <- paste0("mpile-sstat_gencode-v35_",srrid,"-",run.handle,".csv")
@@ -34,8 +35,10 @@ lsamp <- lapply(seq(length(srridv)), function(ii){
 
 # get intron data
 plot.titlev <- c("HX1", "iPSC")
-tsv.fname.hx1 <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR2911306-hx1.csv"
-tsv.fname.ipsc <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR6026510-ipsc.csv"
+# tsv.fname.hx1 <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR2911306-hx1.csv"
+# tsv.fname.ipsc <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR6026510-ipsc.csv"
+tsv.fname.hx1 <- "target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR2911306-hx1.csv"
+tsv.fname.ipsc <- "target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR6026510-ipsc.csv"
 ltsv <- list()
 ltsv[["iPSC"]] <- read.csv(tsv.fname.ipsc, header = T)
 ltsv[["HX1"]] <- read.csv(tsv.fname.hx1, header = T)
@@ -58,9 +61,9 @@ names(lmcor) <- tolower(names(ltsv))
 # get dfp list
 ldfp <- lapply(seq(length(lmcor)), function(ii){
   dfp <- lmcor[[ii]]
-  rownames(dfp) <- colnames(dfp) <- c("iREAD", "IntEREst", 
-                                      "superintronic", "KMA", 
-                                      "IRFinder-S")
+  rownames(dfp) <- colnames(dfp) <- c("iREAD", "IntEREst", "superintronic", 
+                                      "KMA", "IRFinder-S", "MAJIQ", "rMATS", 
+                                      "SUPPA2")
   if(names(lmcor)[ii] == "hx1"){
     which.na <- which(upper.tri(dfp)|dfp==1); dfp[which.na] <- "NA"
   } else{which.na <- which(lower.tri(dfp)|dfp==1); dfp[which.na] <- "NA"}
@@ -95,18 +98,19 @@ ggtile <- ggplot(dfp, aes(x = Var1, y = Var2, fill = Rho, color = sample)) +
   theme_bw() + theme(legend.position = "none", axis.title.x = element_blank(), 
                      axis.title.y = element_blank())
 
-# save new plots
-# new pdf
+# save new plots# new pdf
 plot.fname <- "mcor_srtools_2-samples"
 pdf.fname <- paste0(plot.fname, ".pdf")
 lm <- matrix(c(rep(1, 7),2,3), nrow = 1)
-pdf(pdf.fname, 5.8, 1.5)
+width <- 8; height <- 1.8
+pdf(pdf.fname, width, height)
 grid.arrange(ggtile, as_ggplot(plot.legend1), 
              as_ggplot(plot.legend2), layout_matrix = lm)
 dev.off()
 # new png
 png.fname <- paste0(plot.fname, ".png")
-png(png.fname, width = 5.8, height = 1.5, units = "in", res = 500)
+png(png.fname, width = width, height = height, units = "in", res = 500)
 grid.arrange(ggtile, as_ggplot(plot.legend1), 
              as_ggplot(plot.legend2), layout_matrix = lm)
 dev.off()
+
