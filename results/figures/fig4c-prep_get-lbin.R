@@ -17,17 +17,26 @@ library(GenomicAlignments)
 # load data
 #----------
 plot.titlev <- c("HX1", "iPSC")
-tsv.fname.ipsc <- "called_RI_data_summary_iPSC.tsv"
-tsv.fname.hx1 <- "called_RI_data_summary_HX1.tsv"
+#tsv.fname.ipsc <- "called_RI_data_summary_iPSC.tsv"
+#tsv.fname.hx1 <- "called_RI_data_summary_HX1.tsv"
+# dpath <- file.path("home", "metamaden", "ri_results", "gb_revisions", "fig4c")
+dpath <- "."
+
 ltsv <- list()
-ltsv[["iPSC"]] <- read.table(tsv.fname.ipsc, sep = "\t", header = T)
-ltsv[["HX1"]] <- read.table(tsv.fname.hx1, sep = "\t", header = T)
+ltsv[["iPSC"]] <- read.table(file.path(dpath, "called_RI_data_summary_iPSC.tsv"), 
+                             sep = "\t", header = T)
+ltsv[["HX1"]] <- read.table(file.path(dpath, "called_RI_data_summary_HX1.tsv"), 
+                            sep = "\t", header = T)
 
 # sr bam paths
 # hx1 bam paths
-bam.sr.fpath.hx1 <- file.path("SRR2911306_hx1", "SRR2911306.sorted.bam")
+# bam.sr.fpath.hx1 <- file.path("SRR2911306_hx1", "SRR2911306.sorted.bam")
+bam.sr.fpath.hx1 <- file.path("eternity", "data", "RI_benchmarking_hx1", 
+                              "SRR2911306.sorted.bam")
 # ipsc bam paths
-bam.sr.fpath.ipsc <- file.path("SRR6026510_ipsc", "SRR6026510.sorted.bam")
+# bam.sr.fpath.ipsc <- file.path("SRR6026510_ipsc", "SRR6026510.sorted.bam")
+bam.sr.fpath.ipsc <- file.path("eternity", "data", "RI_benchmarking_BAMs", 
+                               "SRR6026510.sorted.bam")
 
 #-----------------
 # helper functions
@@ -89,7 +98,7 @@ query_bams <- function(intronv, bam.sr.fpath){
 set.seed(0)
 num.intron.pergroup <- 50
 num.bins <- 1000
-num.sr.ol <- 4
+num.sr.ol <- 3
 
 lgroup <- lapply(ltsv, function(tsvi){get_lgroup(tsvi, num.sr.ol)})
 names(lgroup) <- names(ltsv)
@@ -107,9 +116,11 @@ ldfp <- lapply(seq(length(lgroup)), function(ii){
   return(ldfpi)
 }); names(ldfp) <- names(lbam)
 ldfp.fname <- "ldfp_bam-sr-intron-groups_for-smooths_combined-2samples.rda"
-save(ldfp, file = ldfp.fname)
+save(ldfp, file = file.path(dpath, ldfp.fname))
 
 # get normalized bins
+ldfp.fname <- "ldfp_bam-sr-intron-groups_for-smooths_combined-2samples.rda"
+ldfp <- get(load(file.path(dpath, ldfp.fname)))
 interval.size <- 1/num.bins; intv <- seq(0,1,interval.size)
 lnorm <- lapply(seq(length(ldfp)), function(ii){
   ldfpi <- ldfp[[ii]]; samplei <- names(ldfp)[ii]
@@ -129,8 +140,9 @@ lnorm <- lapply(seq(length(ldfp)), function(ii){
   })); dfnormi$sample <- samplei
   return(dfnormi)
 }); names(lnorm) <- names(ldfp)
-lnorm.fname <- "lnorm_bam-sr-intron-groups_for-smooths_combined-2samples.rda"
-save(lnorm, file = lnorm.fname)
+lnorm.fname <- paste0("lnorm_bam-sr-intron-groups_for-smooths_",
+                      "combined-2samples_nol-", num.sr.ol, ".rda")
+save(lnorm, file = file.path(dpath, lnorm.fname))
 
 # get interval summary dfs
 dfint <- do.call(rbind, lapply(seq(length(lnorm)), function(ii){
@@ -148,24 +160,32 @@ dfint <- do.call(rbind, lapply(seq(length(lnorm)), function(ii){
     })); dfint.ti$tmetric <- ti; return(dfint.ti)
   })); dfint.ii$sample <- samplei; return(dfint.ii)
 }))
-dfint.fname <- "dfint_bam-sr-intron-groups_for-smooths_combined-2samples.rda"
 
 # format vars
 dfint$tmetric.label <- "NA"
-dfint[grepl("true_positive.*", dfint$tmetric),]$tmetric.label <- "TP (4+)"
-dfint[grepl("false_positive.*", dfint$tmetric),]$tmetric.label <- "FP (4+)"
-dfint[grepl("false_negative.*", dfint$tmetric),]$tmetric.label <- "FN (4+)"
+dfint[grepl("true_positive.*", dfint$tmetric),]$tmetric.label <- paste0("TP (",
+                                                                        num.sr.ol,
+                                                                        "+)")
+dfint[grepl("false_positive.*", dfint$tmetric),]$tmetric.label <- paste0("FP (",
+                                                                         num.sr.ol
+                                                                         ,"+)")
+dfint[grepl("false_negative.*", dfint$tmetric),]$tmetric.label <- paste0("FN (",
+                                                                         num.sr.ol,
+                                                                         "+)")
 dfint$`Truth\ncategory` <- dfint$tmetric.label
 
 # save dfint
-save(dfint, file = dfint.fname)
+dfint.fname <- paste0("dfint_bam-sr-intron-groups_for-smooths_",
+                      "combined-2samples_nol-",num.sr.ol,".rda")
+save(dfint, file = file.path(dpath, dfint.fname))
 
 #--------------------------
 # smooth of median coverage
 #--------------------------
 # load dfint
-dfint.fname <- "dfint_bam-sr-intron-groups_for-smooths_combined-2samples.rda"
-dfint <- get(load(dfint.fname))
+dfint.fname <- paste0("dfint_bam-sr-intron-groups_for-smooths_",
+                      "combined-2samples_nol-",num.sr.ol,".rda")
+dfint <- get(load(file.path(dpath, dfint.fname)))
 
 # get plot object
 sm.median <- ggplot(dfint, aes(x = bin.min, y = median, color = `Truth\ncategory`)) + 
@@ -176,18 +196,20 @@ sm.median <- sm.median + facet_wrap(~sample, nrow = 2) +
   ylab("Median coverage")
 
 # save figure
-plot.fname <- "ggsmooth-covmedian-ibin_combined-2samples"
+plot.fname <- paste0("ggsmooth-covmedian-ibin_combined-2samples_nol-",num.sr.ol)
 # save pdf
-pdf.fname <- ".pdf"
-pdf(paste0(plot.fname, ".pdf"), 3.5, 2.3); sm.median; dev.off()
+pdf(file.path(dpath, paste0(plot.fname, ".pdf")), 3.5, 2.3); 
+sm.median; dev.off()
 # save png
-png(paste0(plot.fname, ".png"), width = 3.5, height = 2.3, units = "in", res = 500)
+png(file.path(dpath, paste0(plot.fname, ".png")), width = 3.5, height = 2.3, 
+    units = "in", res = 500)
 sm.median; dev.off()
 
 #--------------------------
 # get variance violin plots
 #--------------------------
-pal <- c("FN (4+)" = "#6d9cc6", "FP (4+)" = "#d8788a", "TP (4+)" = "#9db92c")
+pal <- c("#6d9cc6", "#d8788a", "#9db92c")
+names(pal) <- paste0(c("FN", "FP", "TP")," (",num.sr.ol,"+)")
 dfint$abs.log.var <- abs(log10(dfint$var+1))
 
 # violin plots, by sample, absolute log10 var + 1
@@ -215,17 +237,17 @@ plot.legend <- ggplot(dfint, aes(x = tmetric.label, y = abs.log.var,
 plot.legend <- get_legend(plot.legend)
 
 # save new figs
-plot.fname <- "ggvp-iboncov-var_combined-2samples"
+plot.fname <- paste0("ggvp-iboncov-var_combined-2samples_nol-",num.sr.ol)
 ylab.str <- "|log10(var+1)|"; xlab.str <- "Truth category"
 lm <- matrix(c(rep(c(rep(1,6),rep(2,6)), 4),rep(3,12)), nrow = 12)
 # new pdf
-pdf.fname <- paste0(plot.fname, ".pdf")
+pdf.fname <- file.path(dpath, paste0(plot.fname, ".pdf"))
 pdf(pdf.fname, 5, 2.5)
 grid.arrange(vp.abslogvar.hx1, vp.abslogvar.ipsc, as_ggplot(plot.legend), 
              layout_matrix = lm, left = ylab.str)
 dev.off()
 # new png
-png.fname <- paste0(plot.fname, ".png")
+png.fname <- file.path(dpath, paste0(plot.fname, ".png"))
 png(png.fname, width = 5, height = 2.5, res = 500, units = "in")
 grid.arrange(vp.abslogvar.hx1, vp.abslogvar.ipsc, as_ggplot(plot.legend), 
              layout_matrix = lm, left = ylab.str)
@@ -237,8 +259,10 @@ dev.off()
 samplev <- c("iPSC", "HX1")
 for(samplei in samplev){
   dfi <- dfint[dfint$sample==samplei,]
-  group1 <- c("true_positives_4", "true_positives_4", "false_negatives_4")
-  group2 <- c("false_negatives_4", "false_positives_4", "false_positives_4")
+  group1 <- paste0(c("true_positives_", "true_positives_", "false_negatives_"), num.sr.ol)
+  group2 <- paste0(c("false_negatives_", "false_positives_", "false_positives_"), num.sr.ol)
+  #group1 <- c("true_positives_4", "true_positives_4", "false_negatives_4")
+  #group2 <- c("false_negatives_4", "false_positives_4", "false_positives_4")
   for(ii in seq(3)){
     tti <- t.test(dfi[dfi$tmetric == group1[ii],]$abs.log.var,
                   dfi[dfi$tmetric == group2[ii],]$abs.log.var)
@@ -247,13 +271,53 @@ for(samplei in samplev){
     message("p-val: ", tti$p.value)
   }
 }
+# Sample: iPSC
+# T-test: group1: true_positives_3, group2: false_negatives_3
+# p-val: 2.55407256593184e-13
+# Sample: iPSC
+# T-test: group1: true_positives_3, group2: false_positives_3
+# p-val: 6.35328356138947e-26
+# Sample: iPSC
+# T-test: group1: false_negatives_3, group2: false_positives_3
+# p-val: 0.000178815733298381
+# Sample: HX1
+# T-test: group1: true_positives_3, group2: false_negatives_3
+# p-val: 5.70435578096956e-14
+# Sample: HX1
+# T-test: group1: true_positives_3, group2: false_positives_3
+# p-val: 1.41742190791706e-18
+# Sample: HX1
+# T-test: group1: false_negatives_3, group2: false_positives_3
+# p-val: 0.172638234128733
+
+# with >= 4 methods
+# Sample: iPSC
+# T-test: group1: true_positives_4, group2: false_negatives_4
+# p-val: 1.19925058326803e-24
+# Sample: iPSC
+# T-test: group1: true_positives_4, group2: false_positives_4
+# p-val: 2.18449255927638e-07
+# Sample: iPSC
+# T-test: group1: false_negatives_4, group2: false_positives_4
+# p-val: 4.53436718151125e-09
+# Sample: HX1
+# T-test: group1: true_positives_4, group2: false_negatives_4
+# p-val: 1.07370551218339e-27
+# Sample: HX1
+# T-test: group1: true_positives_4, group2: false_positives_4
+# p-val: 5.08278401320857e-11
+# Sample: HX1
+# T-test: group1: false_negatives_4, group2: false_positives_4
+# p-val: 1.06896532049962e-06
 
 #---------------
 # parse gtf data
 #---------------
 # get gencode v35 gtf
 # gtf source: https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_35/gencode.v35.annotation.gtf.gz
-gtf.fname <- "gencode.v35.annotation.gtf"
+gtf.fname <- file.path("eternity", "data", "RI_benchmarking_resources",
+                       "gencode_v35_annotation_files",
+                       "gencode.v35.annotation.gtf")
 gtf <- rtracklayer::import(gtf.fname, format = "gtf")
 gtf.exons <- gtf[which(gtf@elementMetadata$type=="exon")] # get exons only
 # parse bins
@@ -312,19 +376,20 @@ lgtfi <- lapply(seq(length(ldfp)), function(samplei){
 dfp.gtf <- do.call(rbind, lgtfi)
 # format vars
 dfp.gtf$tmetric.label <- "NA"
-dfp.gtf[grepl("true_positive.*", dfp.gtf$tmetric),]$tmetric.label <- "TP (4+)"
-dfp.gtf[grepl("false_positive.*", dfp.gtf$tmetric),]$tmetric.label <- "FP (4+)"
-dfp.gtf[grepl("false_negative.*", dfp.gtf$tmetric),]$tmetric.label <- "FN (4+)"
+dfp.gtf[grepl("true_positive.*", dfp.gtf$tmetric),]$tmetric.label <- paste0("TP (",num.sr.ol,"+)")
+dfp.gtf[grepl("false_positive.*", dfp.gtf$tmetric),]$tmetric.label <- paste0("FP (",num.sr.ol,"+)")
+dfp.gtf[grepl("false_negative.*", dfp.gtf$tmetric),]$tmetric.label <- paste0("FN (",num.sr.ol,"+)")
 dfp.gtf$`Truth\ncategory` <- dfp.gtf$tmetric.label
 
 # save data
-dfp.gtf.fname <- "dfp-gtf-exonol_combined-2samples.rda"
-save(dfp.gtf, file = dfp.gtf.fname)
+dfp.gtf.fname <- paste0("dfp-gtf-exonol_combined-2samples_nol-",num.sr.ol,".rda")
+save(dfp.gtf, file = file.path(dpath, dfp.gtf.fname))
 
 #-------------------
 # exon overlap plots
 #-------------------
-dfp.gtf <- get(load("dfp-gtf-exonol_combined-2samples.rda"))
+dfp.gtf.fname <- paste0("dfp-gtf-exonol_combined-2samples_nol-",num.sr.ol,".rda")
+dfp.gtf <- get(load(file.path(dpath, dfp.gtf.fname)))
 
 # plot results -- num introns w/exon overlapping
 # get plot object
@@ -335,7 +400,9 @@ gtf.smooth <- ggplot(dfp.gtf, aes(x = index, y = num.introns.exonoverlap,
   theme(axis.title.x = element_blank())
 gtf.smooth <- gtf.smooth + facet_wrap(~sample, nrow = 2)
 # save new figure
-pdf.fname <- "ggsmooth-gtf_exonoverlap-numint_combined-2samples.pdf"
+pdf.fname <- file.path(dpath, 
+                       paste0("ggsmooth-gtf_exonoverlap-numint_combined-2samples_nol-",
+                              num.sr.ol,".pdf"))
 pdf(pdf.fname, 3.5, 2.3); gtf.smooth; dev.off()
 
 # plot results -- fraction introns w/exon overlapping
@@ -346,22 +413,30 @@ gtf.smooth <- ggplot(dfp.gtf, aes(x = index, y = fract.introns.exonoverlap,
   scale_x_continuous(breaks = c(0, 1000), labels=c("5'", "3'")) +
   theme(axis.title.x = element_blank())
 gtf.smooth <- gtf.smooth + facet_wrap(~sample, nrow = 2)
+
 # save new figure
-pdf.fname <- "ggsmooth-gtf_exonoverlap-fractint_combined-2samples.pdf"
+pdf.fname <- file.path(dpath, 
+                       paste0("ggsmooth-gtf_exonoverlap-fractint_combined-2samples_nol-",
+                              num.sr.ol,".pdf"))
 pdf(pdf.fname, 3.5, 2.3); gtf.smooth; dev.off()
 
 # plot results -- fraction introns w/exon overlapping, rectangles
 # get plot object
-gtf.smooth <- ggplot(dfp.gtf, aes(xmin = index, xmax = index, ymin=0, ymax = fract.introns.exonoverlap, 
+gtf.smooth <- ggplot(dfp.gtf, aes(xmin = index, xmax = index, ymin=0, 
+                                  ymax = fract.introns.exonoverlap, 
                                   color = `Truth\ncategory`)) +
   geom_rect() + theme_bw() + ylab("Exon overlaps\n(fraction of introns)") +
   scale_x_continuous(breaks = c(0, 1000), labels=c("5'", "3'")) +
   theme(axis.title.x = element_blank())
 gtf.smooth <- gtf.smooth + facet_wrap(~sample, nrow = 2)
+
 # save new figure
-pdf.fname <- "ggsmooth-gtf_exonoverlap-fractint_combined-2samples.pdf"
-pdf("newplot.pdf", 3.5, 2.3); 
-plot <- ggplot(dfp.gtf, aes(xmin = index, xmax = index, ymin=0, ymax = fract.introns.exonoverlap, 
+pdf.fname <- file.path(dpath, 
+                       paste0("ggsmooth-gtf_exonoverlap-fractint_combined-2samples_nol-",
+                              num.sr.ol,".pdf"))
+pdf(pdf.fname, 3.5, 2.3); 
+plot <- ggplot(dfp.gtf, aes(xmin = index, xmax = index, ymin=0, 
+                            ymax = fract.introns.exonoverlap, 
                             color = `Truth\ncategory`)) +
   geom_rect(alpha = 0.4)
 plot + facet_wrap(~`Truth\ncategory`)
@@ -373,14 +448,16 @@ dev.off()
 library(scales)
 # load data
 # gtf data
-gtf.fname <- "dfp-gtf-exonol_combined-2samples.rda"
+gtf.fname <- file.path(dpath, "dfp-gtf-exonol_combined-2samples.rda")
 dfp.gtf <- get(load(gtf.fname))
 # interval coverages
-dfint.fname <- "dfint_bam-sr-intron-groups_for-smooths_combined-2samples.rda"
-dfint <- get(load(dfint.fname))
+dfint.fname <- paste0("dfint_bam-sr-intron-groups_for-smooths_",
+                      "combined-2samples_ncol-",num.sr.ol,".rda")
+dfint <- get(load(file.path(dpath, dfint.fname)))
 
 # color palette
-pal <- c("FN (4+)" = "#6d9cc6", "FP (4+)" = "#d8788a", "TP (4+)" = "#9db92c")
+pal <- c("#6d9cc6", "#d8788a", "#9db92c")
+names(pal) <- paste0(c("FN", "FP", "TP")," (",num.sr.ol,"+)")
 dfint$log.median <- log10(dfint$median + 1)
 ylab.str.coverage <- "Coverage\n(log10 scale)"
 ylab.str.exon <- "Fraction of introns\noverlapping exons"
@@ -425,16 +502,17 @@ plot.legend <- ggplot(dfint, aes(x = bin.min, y = median, color = `Truth\ncatego
 plot.legend <- get_legend(plot.legend)
 
 # save new figure
-plot.fname <- "ggsmooth-mediancov-exonolfract_combined-2samples"
+plot.fname <- paste0("ggsmooth-mediancov-exonolfract_",
+                     "combined-2samples_nol-", num.sr.ol)
 lm <- matrix(c(rep(c(1,2), 10), rep(c(3,4), 8), rep(5, 6)), nrow = 2)
 # save new pdf
-pdf.fname <- paste0(plot.fname, ".pdf")
+pdf.fname <- file.path(dpath, paste0(plot.fname, ".pdf"))
 pdf(pdf.fname, 5.5, 3)
 grid.arrange(median.hx1, gtf.smooth.hx1, median.ipsc, gtf.smooth.ipsc,
              as_ggplot(plot.legend), layout_matrix = lm, nrow = 2)
 dev.off()
 # save new png
-png.fname <- paste0(plot.fname, ".png")
+png.fname <- file.path(dpath, paste0(plot.fname, ".png"))
 png(png.fname, width = 5.5, height = 3, units = "in", res = 500)
 grid.arrange(median.hx1, gtf.smooth.hx1, median.ipsc, gtf.smooth.ipsc,
              as_ggplot(plot.legend), layout_matrix = lm, nrow = 2)
@@ -449,8 +527,8 @@ for(samplei in samplev){
                    c("index", "fract.introns.exonoverlap", "tmetric")]
   dfinti <- dfint[dfint$sample==samplei, 
                   c("bin.min", "log.median", "tmetric")]
-  for(tmetrici in c("true_positives_4", "false_positives_4", 
-                    "false_negatives_4")){
+  for(tmetrici in paste0(c("true_positives_", "false_positives_", 
+                           "false_negatives_"), num.sr.ol)){
     dfintii <- dfinti[dfinti$tmetric==tmetrici,]
     dfexii <- do.call(rbind, lapply(c(0, seq(1000)), function(ii){
       dfi <- data.frame(pos = ii/1000); dfi$fi.ex <- 0
@@ -473,28 +551,53 @@ for(samplei in samplev){
     }
   }
 }
+# sample: HX1
+# tmetric: true_positives_3
+# rho: 0.259
+# pval: 9.356831e-17
+# sample: HX1
+# tmetric: false_positives_3
+# rho: 0.297
+# pval: 8.850894e-22
+# sample: HX1
+# tmetric: false_negatives_3
+# rho: 0.371
+# pval: 5.028215e-34
+# sample: iPSC
+# tmetric: true_positives_3
+# rho: 0.194
+# pval: 6.116858e-10
+# sample: iPSC
+# tmetric: false_positives_3
+# rho: 0.371
+# pval: 4.290614e-34
+# sample: iPSC
+# tmetric: false_negatives_3
+# rho: 0.342
+# pval: 6.735386e-29
 
+# with >=4 methods
 # sample: HX1
 # tmetric: true_positives_4
-# rho: 0.198
-# pval: 2.455e-10
+# rho: 0.195
+# pval: 4.495265e-10
 # sample: HX1
 # tmetric: false_positives_4
-# rho: 0.284
-# pval: 5.091e-20
+# rho: 0.194
+# pval: 5.846869e-10
 # sample: HX1
 # tmetric: false_negatives_4
-# rho: 0.389
-# pval: 1.501e-37
+# rho: 0.361
+# pval: 3.61238e-32
 # sample: iPSC
 # tmetric: true_positives_4
-# rho: 0.12
-# pval: 1.441e-04
+# rho: 0.107
+# pval: 7.289607e-04
 # sample: iPSC
 # tmetric: false_positives_4
-# rho: 0.209
-# pval: 2.372e-11
+# rho: 0.215
+# pval: 6.268153e-12
 # sample: iPSC
 # tmetric: false_negatives_4
-# rho: 0.328
-# pval: 1.632e-26
+# rho: 0.346
+# pval: 1.340498e-29
