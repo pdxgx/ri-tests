@@ -33,9 +33,11 @@ ltsv.all <- list("iPSC" = tsv.ipsc[,cnv], "HX1" = tsv.hx1[,cnv])
 #-----------------
 # get precision and recall from a dfp of truth metrics
 dfpr_bylrfilt <- function(tsv, lrfilt = seq(0.1, 0.9, 0.1), 
-                          intron.type.cname = "filtintron", lr.metric.cname = "max_intron_persistence",
-                          tool.strv = c("interest", "superintronic", "iread", "kma", "irfinders",
-                                        "rmats", "majiq", "suppa2")){
+                          intron.type.cname = "filtintron", 
+                          lr.metric.cname = "max_intron_persistence",
+                          tool.strv = c("interest", "superintronic", "iread", 
+                                        "kma", "irfinders", "rmats", "majiq", 
+                                        "suppa2")){
   do.call(rbind, lapply(lrfilt, function(min.lr){
     do.call(rbind, lapply(tool.strv, function(tooli){
       # get main df
@@ -78,8 +80,10 @@ ldfp <- lapply(seq(length(lltsv)), function(ii){
     dfpr$type <- intron.type; dfpr$sample <- sample.type; return(dfpr)
   })
 })
-ldfp <- list("potential_ipsc" = ldfp[[1]][[2]], "potential_hx1" = ldfp[[1]][[1]],
-             "called_ipsc" = ldfp[[2]][[2]], "called_hx1" = ldfp[[2]][[1]])
+ldfp <- list("potential_ipsc" = ldfp[[1]][[1]], 
+             "potential_hx1" = ldfp[[1]][[2]],
+             "called_ipsc" = ldfp[[2]][[1]], 
+             "called_hx1" = ldfp[[2]][[2]])
 
 # get plot data
 dfp <- do.call(rbind, lapply(seq(length(ldfp)), function(ii){
