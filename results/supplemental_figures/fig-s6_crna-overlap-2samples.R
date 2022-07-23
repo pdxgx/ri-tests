@@ -114,14 +114,16 @@ dfpr$`Truth\nmetric` <- dfpr$tmetric.label
 gg.crna <- ggplot(dfpr, aes(x = Tool, y = perc.intron.ol, fill = Tool)) +
   geom_bar(stat = "identity") + theme_bw() + 
   ylab("Percent of introns\noverlapping cRNAs") +
-  theme(axis.title.x = element_blank(), axis.text.x = element_blank()) +
+  theme(axis.title.x = element_blank(), 
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none") +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   scale_fill_manual(values = pal.sr)
 gg.crna <- gg.crna + facet_wrap(~sample, nrow = 2)
 
 # save new figures
 plot.fname <- "ggbp_crna-overlaps_by-srtool_combined-2samples"
-width <- 4; height <- 2.5
+width <- 2; height <- 2.5
 # new pdf
 pdf.fname <- paste0(plot.fname, ".pdf")
 pdf(pdf.fname, width, height)
