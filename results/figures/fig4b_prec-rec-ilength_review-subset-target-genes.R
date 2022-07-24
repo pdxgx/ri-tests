@@ -12,10 +12,8 @@ library(gridExtra)
 # load data
 #----------
 plot.titlev <- c("HX1", "iPSC")
-# tsv.fname.hx1 <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR2911306-hx1.csv"
-# tsv.fname.ipsc <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR6026510-ipsc.csv"
-tsv.fname.hx1 <- "target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR2911306-hx1.csv"
-tsv.fname.ipsc <- "target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR6026510-ipsc.csv"
+tsv.fname.hx1 <- "subset_target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR2911306-hx1.csv"
+tsv.fname.ipsc <- "subset_target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR6026510-ipsc.csv"
 
 ltsv <- list()
 ltsv[["iPSC"]] <- read.csv(tsv.fname.ipsc)
@@ -155,9 +153,9 @@ lgg <- lapply(ldfpr, function(dfpr){
 names(lgg) <- plot.titlev
 
 # plot dims
-prec.ymax <- 0.2
-rec.ymax <- 0.7
-f1.ymax <- 0.25
+prec.ymax <- 1
+rec.ymax <- 1
+f1.ymax <- 1
 xmax <- max(len.filt)
 
 # make composite plot
@@ -233,7 +231,7 @@ ldfpr <- lapply(ltsv, function(tsvi){
 # pt.size <- 1.2; line.size <- 1
 lgg <- lapply(ldfpr, function(dfpr){
   # filter bins on min introns
-  min.introns <- 200; dfprf <- dfpr[dfpr$num.intron >= min.introns,]
+  min.introns <- 50; dfprf <- dfpr[dfpr$num.intron >= min.introns,]
   # make plot objects
   gg.prec <- ggplot(dfprf, aes(x = min.len, y = precision, color = Tool)) +
     geom_smooth(se = F) + theme_bw() + scale_color_manual(values = pal) +
@@ -256,15 +254,16 @@ lgg <- lapply(ldfpr, function(dfpr){
 names(lgg) <- c("HX1", "iPSC")
 
 # plot dims
-prec.ymax <- 0.25
-rec.ymax <- 0.52
-f1.ymax <- 0.28
+prec.ymax <- 1
+rec.ymax <- 1
+f1.ymax <- 1
 xmax <- max(len.filt)
 
 # get formatted plot onbjects
 prec.hx1 <- lgg[[1]]$prec + ylim(0, prec.ymax) + xlim(0, xmax) +
   theme(axis.title.x = element_blank(), axis.text.x = element_blank()) +
   scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
+
 rec.hx1 <- lgg[[1]]$rec + ylim(0, rec.ymax) + xlim(0, xmax) +
   theme(axis.title.x = element_blank(), axis.text.x = element_blank()) +
   scale_y_continuous(labels = scales::number_format(accuracy = 0.01))

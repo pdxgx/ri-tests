@@ -19,7 +19,7 @@ plot.title <- "HX1"
 # tsv.fname <- "nonzero_RI_data_summary_HX1featureannotated.tsv"
 # tsv <- read.table(tsv.fname, sep = "\t", header = T)
 # tsv.fname <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR2911306-hx1.csv"
-tsv.fname <- "target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR2911306-hx1.csv"
+tsv.fname <- "subset_target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR2911306-hx1.csv"
 tsv <- read.csv(tsv.fname, header = T)
 
 #-----------------
@@ -80,10 +80,11 @@ dfpr$Tool <- ifelse(dfpr$tool=="interest", "IntEREst",
 #-------------------
 # get plot data
 dfp <- do.call(rbind, lapply(tool.strv, function(tooli){
+  message(tooli)
   dfpri <- dfpr[dfpr$tool==tooli,]
-  qi.prec <- quantile(dfpri$precision)
-  qi.rec <- quantile(dfpri$recall)
-  qi.fm <- quantile(dfpri$fmeasure)
+  qi.prec <- quantile(dfpri$precision, na.rm = T)
+  qi.rec <- quantile(dfpri$recall, na.rm = T)
+  qi.fm <- quantile(dfpri$fmeasure, na.rm = T)
   data.frame(prec25 = qi.prec[2], prec50 = qi.prec[3], prec75 = qi.prec[4], 
              rec25 = qi.rec[2], rec50 = qi.rec[3], rec75 = qi.rec[4], 
              fm25 = qi.fm[2], fm50 = qi.fm[3], fm75 = qi.fm[4], 

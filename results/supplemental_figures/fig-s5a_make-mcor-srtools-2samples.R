@@ -21,11 +21,13 @@ lsamp <- lapply(seq(length(srridv)), function(ii){
   srrid <- srridv[ii]; run.handle <- run.handlev[ii]
   dname <- paste0(srrid, "_", run.handle)
   # irv.fname <- paste0("granges-lrmap_sr-5-methods_", srrid,"-",run.handle,".rda")
-  irv.fname <- paste0("granges-lrmap_sr-8-methods_", srrid,"-",run.handle,".rda")
-  irv <- get(load(file.path(dname, irv.fname)))
+  irv.fname <- paste0("granges-lrmap_sr-8-methods_",srrid,"-",run.handle,".rda")
+  # irv <- get(load(file.path(dname, irv.fname)))
+  irv <- get(load(file.path(".", irv.fname)))
   # get median gene coverage
   mpile.fname <- paste0("mpile-sstat_gencode-v35_",srrid,"-",run.handle,".csv")
-  mpile <- read.csv(file.path(dname, mpile.fname))
+  # mpile <- read.csv(file.path(dname, mpile.fname))
+  mpile <- read.csv(file.path(".", mpile.fname))
   grpile <- makeGRangesFromDataFrame(mpile, keep.extra.columns = T)
   grpile <- grpile[!is.na(grpile$median)]
   grpile <- grpile[grpile$median >= 2]
@@ -37,8 +39,8 @@ lsamp <- lapply(seq(length(srridv)), function(ii){
 plot.titlev <- c("HX1", "iPSC")
 # tsv.fname.hx1 <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR2911306-hx1.csv"
 # tsv.fname.ipsc <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR6026510-ipsc.csv"
-tsv.fname.hx1 <- "target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR2911306-hx1.csv"
-tsv.fname.ipsc <- "target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR6026510-ipsc.csv"
+tsv.fname.hx1 <- "subset_target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR2911306-hx1.csv"
+tsv.fname.ipsc <- "subset_target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR6026510-ipsc.csv"
 ltsv <- list()
 ltsv[["iPSC"]] <- read.csv(tsv.fname.ipsc, header = T)
 ltsv[["HX1"]] <- read.csv(tsv.fname.hx1, header = T)

@@ -15,15 +15,15 @@ titlev <- c("HX1", "iPSC")
 
 # get background table
 plot.titlev <- c("HX1", "iPSC")
-tsv.fname.ipsc <- "called_RI_data_summary_iPSC.tsv"
-tsv.fname.hx1 <- "called_RI_data_summary_HX1.tsv"
+tsv.fname.ipsc <- "called_RI_data_summary_iPSCfeatureannotated_GCcontent.tsv"
+tsv.fname.hx1 <- "called_RI_data_summary_HX1featureannotated_GCcontent.tsv"
 ltsv <- list()
 ltsv[["iPSC"]] <- read.table(tsv.fname.ipsc, sep = "\t", header = T)
 ltsv[["HX1"]] <- read.table(tsv.fname.hx1, sep = "\t", header = T)
 
 # get gene candidate tables
-genes.fname.hx1 <- "HX1_validatedONLY_RI_genes_07-16-2022_07.46.06.tsv"
-genes.fname.ipsc <- "iPSC_validatedONLY_RI_genes_07-16-2022_07.46.06.tsv"
+genes.fname.hx1 <- "HX1_validatedONLY_RI_genes_07-23-2022_20.11.09.tsv"
+genes.fname.ipsc <- "iPSC_validatedONLY_RI_genes_07-23-2022_20.11.09.tsv"
 lgenes <- list()
 lgenes[["HX1"]] <- read.table(genes.fname.hx1, sep = "\t", header = T)
 lgenes[["iPSC"]] <- read.table(genes.fname.ipsc, sep = "\t", header = T)
