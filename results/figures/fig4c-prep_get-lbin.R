@@ -17,16 +17,14 @@ library(GenomicAlignments)
 # load data
 #----------
 plot.titlev <- c("HX1", "iPSC")
-#tsv.fname.ipsc <- "called_RI_data_summary_iPSC.tsv"
-#tsv.fname.hx1 <- "called_RI_data_summary_HX1.tsv"
-# dpath <- file.path("home", "metamaden", "ri_results", "gb_revisions", "fig4c")
-dpath <- "."
+dpath <- file.path("home", "metamaden", "ri_results", "gb_revisions", "fig4c")
+# dpath <- "."
 
 ltsv <- list()
-ltsv[["iPSC"]] <- read.table(file.path(dpath, "called_RI_data_summary_iPSC.tsv"), 
-                             sep = "\t", header = T)
-ltsv[["HX1"]] <- read.table(file.path(dpath, "called_RI_data_summary_HX1.tsv"), 
-                            sep = "\t", header = T)
+tsv.fname.ipsc <- "called_RI_data_summary_iPSCfeatureannotated_GCcontent_splicetype.tsv"
+tsv.fname.hx1 <- "called_RI_data_summary_HX1featureannotated_GCcontent_splicetype.tsv"
+ltsv[["iPSC"]] <- read.table(file.path(dpath, tsv.fname.ipsc), sep = "\t", header = T)
+ltsv[["HX1"]] <- read.table(file.path(dpath, tsv.fname.hx1), sep = "\t", header = T)
 
 # sr bam paths
 # hx1 bam paths
@@ -49,7 +47,7 @@ get_singlegroup <- function(tsv, min.tmetric = 4, regex = "true_positives$"){
 }
 
 # get intronv groups 
-get_lgroup <- function(tsv, min.tmetric = 4,
+get_lgroup <- function(tsv, min.tmetric = 3,
                        regexv = c("true_positives$", "false_negatives$", "false_positives$")){
   lgroup <- list()
   grp.namev <- paste0(gsub("\\$", "", regexv), "_", min.tmetric)
@@ -273,42 +271,22 @@ for(samplei in samplev){
 }
 # Sample: iPSC
 # T-test: group1: true_positives_3, group2: false_negatives_3
-# p-val: 2.55407256593184e-13
+# p-val: 1.74098529866865e-21
 # Sample: iPSC
 # T-test: group1: true_positives_3, group2: false_positives_3
-# p-val: 6.35328356138947e-26
+# p-val: 2.26208463181506e-37
 # Sample: iPSC
 # T-test: group1: false_negatives_3, group2: false_positives_3
-# p-val: 0.000178815733298381
+# p-val: 8.98293336142017e-05
 # Sample: HX1
 # T-test: group1: true_positives_3, group2: false_negatives_3
-# p-val: 5.70435578096956e-14
+# p-val: 4.26335762471995e-23
 # Sample: HX1
 # T-test: group1: true_positives_3, group2: false_positives_3
-# p-val: 1.41742190791706e-18
+# p-val: 9.89723087831316e-29
 # Sample: HX1
 # T-test: group1: false_negatives_3, group2: false_positives_3
-# p-val: 0.172638234128733
-
-# with >= 4 methods
-# Sample: iPSC
-# T-test: group1: true_positives_4, group2: false_negatives_4
-# p-val: 1.19925058326803e-24
-# Sample: iPSC
-# T-test: group1: true_positives_4, group2: false_positives_4
-# p-val: 2.18449255927638e-07
-# Sample: iPSC
-# T-test: group1: false_negatives_4, group2: false_positives_4
-# p-val: 4.53436718151125e-09
-# Sample: HX1
-# T-test: group1: true_positives_4, group2: false_negatives_4
-# p-val: 1.07370551218339e-27
-# Sample: HX1
-# T-test: group1: true_positives_4, group2: false_positives_4
-# p-val: 5.08278401320857e-11
-# Sample: HX1
-# T-test: group1: false_negatives_4, group2: false_positives_4
-# p-val: 1.06896532049962e-06
+# p-val: 0.165249298953048
 
 #---------------
 # parse gtf data
