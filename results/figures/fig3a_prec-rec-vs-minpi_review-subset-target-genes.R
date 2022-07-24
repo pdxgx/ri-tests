@@ -111,7 +111,7 @@ names(lgg) <- c("iPSC", "HX1")
 # make composite plot objects
 xlim.min <- 0.1; xlim.max <- 0.9
 ymax.prec <- 0.4
-ymax.rec <- 0.8
+ymax.rec <- 0.7
 ymax.f1 <- 0.28
 prec.hx1 <- lgg[["HX1"]]$prec + ylim(0, ymax.prec) + xlim(xlim.min, xlim.max) +
   theme(axis.title.x = element_blank(), axis.text.x = element_blank()) +
