@@ -1,5 +1,5 @@
 library("irr")
-HX1 <- read.table("~/Downloads/called_RI_data_summary_HX1featureannotated_GCcontent.tsv",sep="\t",header=TRUE)
+HX1 <- read.table("called_RI_data_summary_HX1featureannotated_GCcontent.tsv",sep="\t",header=TRUE)
 introns <- unique(HX1[,"intron"])
 HX1.dat <- data.frame(matrix(nr=length(introns),nc=8))
 for(i in 1:length(introns)) {
@@ -14,7 +14,7 @@ kappam.fleiss(HX1.dat>0)
 #
 #        z = 86.5 
 #  p-value = 0 
-iPSC <- read.table("~/Downloads/called_RI_data_summary_iPSCfeatureannotated_GCcontent.tsv",sep="\t",header=TRUE)
+iPSC <- read.table("called_RI_data_summary_iPSCfeatureannotated_GCcontent.tsv",sep="\t",header=TRUE)
 introns <- unique(iPSC[,"intron"])
 iPSC.dat <- data.frame(matrix(nr=length(introns),nc=8))
 for(i in 1:length(introns)) {
