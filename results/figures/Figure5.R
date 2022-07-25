@@ -1,5 +1,5 @@
-genes.fname.hx1 <- "HX1_validatedONLY_RI_genes_07-16-2022_07.46.06.tsv"
-genes.fname.ipsc <- "iPSC_validatedONLY_RI_genes_07-16-2022_07.46.06.tsv"
+genes.fname.hx1 <- "HX1_validatedONLY_RI_genes_07-23-2022_20.11.09.tsv"
+genes.fname.ipsc <- "iPSC_validatedONLY_RI_genes_07-23-2022_20.11.09.tsv"
 lgenes <- list()
 lgenes[["HX1"]] <- read.table(genes.fname.hx1, sep = "\t", header = T)
 lgenes[["iPSC"]] <- read.table(genes.fname.ipsc, sep = "\t", header = T)
@@ -26,7 +26,7 @@ dfp <- do.call(rbind, lapply(names(lgenes), function(samplei){
   #message(samplei)
 }))
 #genev <- unique(dfp$gene)
-genev <- c("AP1G2","LBR","SRSF7","IGSF8","FAHD2B")
+genev <- c("AP1G2","LBR","NIFK","SRSF7","IGSF8","FAHD2A","FAHD2B")
 lgg <- lapply(genev, function(genei){
   dfpi <- dfp[dfp$gene==genei,]
   samplev <- unique(dfpi$sample)
@@ -55,7 +55,7 @@ lgg <- lapply(genev, function(genei){
   return(retmat) })
   
 
-plot_mat <- function(x, y, mat=NULL, label="", split=9, col.highlight=0,size=NULL) {
+plot_mat <- function(x, y, mat=NULL, label="", split=9, skip.HX1=FALSE, col.highlight=0,size=NULL) {
 	if (is.null(mat)) {
 		return()
 	}
@@ -67,6 +67,12 @@ plot_mat <- function(x, y, mat=NULL, label="", split=9, col.highlight=0,size=NUL
 	y.width <- (y.max-y.min)/75
 	x.dim <- dim(mat)[1]
 	y.dim <- dim(mat)[2]
+	if (skip.HX1) {
+		jstart <- 9
+	}
+	else {
+		jstart <- 1
+	}
 	for (i in c(setdiff(1:y.dim, col.highlight), col.highlight)) {
 		if (i==0) {
 			next
@@ -77,12 +83,12 @@ plot_mat <- function(x, y, mat=NULL, label="", split=9, col.highlight=0,size=NUL
 		else {
 			bord <- "lightgray"
 		}
-		for (j in 1:x.dim) {
+		for (j in jstart:x.dim) {
 			adj <- j %/% split
 			x1 <- x+i*x.width
 			x2 <- x1+x.width
-			y1 <- y-(1+j+adj)*y.width
-			y2 <- y-(2+j+adj)*y.width
+			y1 <- y-(1+j+adj-jstart+1)*y.width
+			y2 <- y-(2+j+adj-jstart+1)*y.width
 			
 			if (is.na(mat[j,i])) {
 				rect(x1, y1, x2, y2, col="white", border=bord)
@@ -101,21 +107,32 @@ plot_mat <- function(x, y, mat=NULL, label="", split=9, col.highlight=0,size=NUL
 			}
 		}
 	}
-	text(x+x.width,y-y.width, label, cex=0.75, adj=0, font=3)		
-	for (j in 1:x.dim) {
+	if (skip.HX1) {
+		text(x+x.width,y-2*y.width, label, cex=0.75, adj=0, font=3)		
+	}
+	else {
+		text(x+x.width,y-y.width, label, cex=0.75, adj=0, font=3)		
+	}
+	for (j in jstart:x.dim) {
 		adj <- j %/% split
-		yj <- y-(1.5+j+adj)*y.width
+		yj <- y-(1.5+j+adj-jstart+1)*y.width
 		text(x+x.width/2, yj, j %% split + j %/% split, cex=0.5, adj=0.5)
 	}
-	text(x, y-0.5*split*y.width, "HX1", cex=0.75, srt=90, adj=1, pos=2)
-	text(x, y-1.5*split*y.width, "iPSC", cex=0.75, srt=90, adj=1, pos=2)
+	if (skip.HX1) {
+		text(x, y-(0.5*split+1)*y.width, "iPSC", cex=0.75, srt=90, adj=1, pos=2)
+	}
+	else {
+		text(x, y-0.5*split*y.width, "HX1", cex=0.75, srt=90, adj=1, pos=2)
+		text(x, y-1.5*split*y.width, "iPSC", cex=0.75, srt=90, adj=1, pos=2)
+	}
 }
 
 par(mar=c(0.1,0.1,0.1,0.1))
 plot(0:1,0:1,type="n",axes=FALSE, xlab="", ylab="")
-plot_mat(0,1,mat=lgg[[1]], label=genev[1], col.highlight=17) # AP1G2
-plot_mat(0.46,1,mat=lgg[[2]], label=genev[2], col.highlight=5) # LBR
-plot_mat(0.06,0.69,mat=lgg[[3]], label=genev[3], col.highlight=7) # SRSF7
-plot_mat(0.3,0.69,mat=lgg[[4]], label=genev[4], col.highlight=5) # IGSF8
-plot_mat(0.47,0.69,mat=lgg[[5]], label=genev[5], col.highlight=1) # FAHD2B
-legend(0.01,0.38,legend=c("TP", "FN", "FP", "TN", "No coverage"), fill=c("#9db92c","#6d9cc6","#d8788a","#ffc18f","white"),border="lightgray", ncol=4, cex=0.75)
+plot_mat(0.05,1,mat=lgg[[1]], label=genev[1], col.highlight=17) # AP1G2
+plot_mat(0.51,1,mat=lgg[[2]], label=genev[2], col.highlight=5) # LBR
+plot_mat(0,0.7,mat=lgg[[4]], label=genev[4], col.highlight=7, skip.HX1=TRUE) # SRSF7
+plot_mat(0.24,0.7,mat=lgg[[5]], label=genev[5], col.highlight=5, skip.HX1=TRUE) # IGSF8
+plot_mat(0.41,0.7,mat=lgg[[6]], label=genev[6], col.highlight=9, skip.HX1=TRUE) # FAHD2A
+plot_mat(0.62,0.7,mat=lgg[[7]], label=genev[7], col.highlight=1, skip.HX1=TRUE) # FAHD2B
+legend(0.025,0.49,legend=c("TP", "FN", "FP", "TN", "No coverage"), fill=c("#9db92c","#6d9cc6","#d8788a","#ffc18f","white"),border="lightgray", ncol=5, cex=0.75)
