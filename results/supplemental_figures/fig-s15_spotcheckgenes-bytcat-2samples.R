@@ -11,10 +11,8 @@ library(gridExtra)
 #----------
 # load data
 #----------
-titlev <- c("HX1", "iPSC")
-
 # get background table
-plot.titlev <- c("HX1", "iPSC")
+titlev <- c("HX1", "iPSC")
 tsv.fname.ipsc <- "called_RI_data_summary_iPSCfeatureannotated_GCcontent.tsv"
 tsv.fname.hx1 <- "called_RI_data_summary_HX1featureannotated_GCcontent.tsv"
 ltsv <- list()

@@ -150,7 +150,7 @@ lgg <- lapply(ldfpr, function(dfpr){
   return(list(prec = gg.ptline.prec, rec = gg.ptline.rec, 
               f1score = gg.ptline.f1score, legend = plot.legend))
 })
-names(lgg) <- plot.titlev
+names(lgg) <- names(ldfpr)
 
 # plot dims
 prec.ymax <- 1
@@ -224,6 +224,7 @@ ldfpr <- lapply(ltsv, function(tsvi){
   dfpr$Tool <- dfpr$tool # format vars
   dfpr$`RI detection\ntool` <- dfpr$tool; dfpr
 })
+names(ldfpr) <- names(ltsv)
 
 # set transparency
 # alpha.val <- 1
@@ -231,7 +232,7 @@ ldfpr <- lapply(ltsv, function(tsvi){
 # pt.size <- 1.2; line.size <- 1
 lgg <- lapply(ldfpr, function(dfpr){
   # filter bins on min introns
-  min.introns <- 50; dfprf <- dfpr[dfpr$num.intron >= min.introns,]
+  min.introns <- 80; dfprf <- dfpr[dfpr$num.intron >= min.introns,]
   # make plot objects
   gg.prec <- ggplot(dfprf, aes(x = min.len, y = precision, color = Tool)) +
     geom_smooth(se = F) + theme_bw() + scale_color_manual(values = pal) +
@@ -251,37 +252,40 @@ lgg <- lapply(ldfpr, function(dfpr){
   gg.f1 <- gg.f1 + theme(axis.title.x = element_blank(), legend.position = "none")
   return(list(prec = gg.prec, rec = gg.rec, f1score = gg.f1, legend = plot.legend))
 })
-names(lgg) <- c("HX1", "iPSC")
+names(lgg) <- names(ltsv)
 
 # plot dims
-prec.ymax <- 1
+prec.ymax <- 0.67
 rec.ymax <- 1
-f1.ymax <- 1
+f1.ymax <- 0.3
 xmax <- max(len.filt)
 
 # get formatted plot onbjects
-prec.hx1 <- lgg[[1]]$prec + ylim(0, prec.ymax) + xlim(0, xmax) +
-  theme(axis.title.x = element_blank(), axis.text.x = element_blank()) +
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
+prec.hx1 <- lgg[["HX1"]]$prec + ylim(0, prec.ymax) + xlim(0, xmax) +
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank()) #+
+#  scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
 
-rec.hx1 <- lgg[[1]]$rec + ylim(0, rec.ymax) + xlim(0, xmax) +
-  theme(axis.title.x = element_blank(), axis.text.x = element_blank()) +
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
-f1.hx1 <- lgg[[1]]$f1score + ylim(0, f1.ymax) + xlim(0, xmax) +
-  theme(axis.title.x = element_blank()) +
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
-prec.ipsc <- lgg[[2]]$prec + ylim(0, prec.ymax) + xlim(0, xmax) +
+rec.hx1 <- lgg[["HX1"]]$rec + ylim(0, rec.ymax) + xlim(0, xmax) +
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank()) # +
+  # scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
+f1.hx1 <- lgg[["HX1"]]$f1score + ylim(0, f1.ymax) + xlim(0, xmax) +
+  theme(axis.title.x = element_blank()) # +
+  # scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
+
+prec.ipsc <- lgg[["iPSC"]]$prec + ylim(0, prec.ymax) + xlim(0, xmax) +
   theme(axis.title.y = element_blank(), axis.title.x = element_blank(),
-        axis.text.y = element_blank(), axis.text.x = element_blank()) +
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
-rec.ipsc <- lgg[[2]]$rec + ylim(0, rec.ymax) + xlim(0, xmax) + 
+        axis.text.y = element_blank(), axis.text.x = element_blank()) #+
+  #scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
+
+rec.ipsc <- lgg[["iPSC"]]$rec + ylim(0, rec.ymax) + xlim(0, xmax) + 
   theme(axis.title.y = element_blank(), axis.title.x = element_blank(),
-        axis.text.y = element_blank(), axis.text.x = element_blank()) +
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
-f1.ipsc <- lgg[[2]]$f1score + ylim(0, f1.ymax) + xlim(0, xmax) +
+        axis.text.y = element_blank(), axis.text.x = element_blank()) # +
+  # scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
+
+f1.ipsc <- lgg[["iPSC"]]$f1score + ylim(0, f1.ymax) + xlim(0, xmax) +
   theme(axis.title.y = element_blank(), axis.title.x = element_blank(),
-        axis.text.y = element_blank()) +
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
+        axis.text.y = element_blank()) # +
+  # scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
 
 # make composite plot
 # format plot vars

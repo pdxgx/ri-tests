@@ -12,7 +12,7 @@ library(GenomicRanges)
 # load intron truth category data
 plot.titlev <- c("HX1", "iPSC")
 tsv.fname.ipsc <- "called_RI_data_summary_iPSCfeatureannotated_GCcontent.tsv"
-tsv.fname.hx1 <- "nonzero_RI_data_summary_HX1featureannotated_GCcontent"
+tsv.fname.hx1 <- "called_RI_data_summary_HX1featureannotated_GCcontent.tsv"
 ltsv <- list()
 ltsv[["iPSC"]] <- read.table(tsv.fname.ipsc, sep = "\t", header = T)
 ltsv[["HX1"]] <- read.table(tsv.fname.hx1, sep = "\t", header = T)
