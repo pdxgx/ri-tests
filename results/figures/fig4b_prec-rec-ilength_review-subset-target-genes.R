@@ -158,7 +158,7 @@ rec.ymax <- 1
 f1.ymax <- 1
 xmax <- max(len.filt)
 
-# make composite plot
+# get plot objects
 prec.hx1 <- lgg[[1]]$prec + ylim(0, prec.ymax) + xlim(0, xmax) +
   theme(axis.title.x = element_blank(), axis.text.x = element_blank())
 rec.hx1 <- lgg[[1]]$rec + ylim(0, rec.ymax) + xlim(0, xmax) +
@@ -175,6 +175,9 @@ f1.ipsc <- lgg[[2]]$f1score + ylim(0, f1.ymax) + xlim(0, xmax) +
   theme(axis.title.y = element_blank(), axis.title.x = element_blank(),
         axis.text.y = element_blank())
 
+#-------------------------------------------------
+# ggpt/line figure -- prec/rec/f1 by intron length
+#-------------------------------------------------
 # save new figure
 # get figure vars
 num.plot <- 4; num.legend <- 2
@@ -204,11 +207,12 @@ grid.arrange(prec.hx1, rec.hx1, f1.hx1, prec.ipsc, rec.ipsc, f1.ipsc,
              top = title.str, bottom = xlab.str)
 dev.off()
 
-#--------------------------------------------
-# revised fig 4b -- prec/rec by ilength tiles
-#--------------------------------------------
+#------------------------------------------------
+# get prec/rec/f1 for binned intron length ranges
+#------------------------------------------------
+# get data for fig 4b
 # define the length filters
-seq.max <- 4000; bin.size <- 300; len.filt <- seq(0, seq.max, 100)
+seq.max <- 4000; bin.size <- 300; len.filt <- seq(0, seq.max, bin.size)
 # get list of dfpr objects
 ldfpr <- lapply(ltsv, function(tsvi){
   dfpr <- dfpr_bylenfilt_binned(tsvi, len.filt = len.filt,
@@ -255,38 +259,37 @@ lgg <- lapply(ldfpr, function(dfpr){
 names(lgg) <- names(ltsv)
 
 # plot dims
-prec.ymax <- 0.67
+prec.ymax <- 1
 rec.ymax <- 1
-f1.ymax <- 0.3
+f1.ymax <- 1
 xmax <- max(len.filt)
 
 # get formatted plot onbjects
 prec.hx1 <- lgg[["HX1"]]$prec + ylim(0, prec.ymax) + xlim(0, xmax) +
-  theme(axis.title.x = element_blank(), axis.text.x = element_blank()) #+
-#  scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank())
 
 rec.hx1 <- lgg[["HX1"]]$rec + ylim(0, rec.ymax) + xlim(0, xmax) +
-  theme(axis.title.x = element_blank(), axis.text.x = element_blank()) # +
-  # scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank())
+
 f1.hx1 <- lgg[["HX1"]]$f1score + ylim(0, f1.ymax) + xlim(0, xmax) +
-  theme(axis.title.x = element_blank()) # +
-  # scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
+  theme(axis.title.x = element_blank())
 
 prec.ipsc <- lgg[["iPSC"]]$prec + ylim(0, prec.ymax) + xlim(0, xmax) +
   theme(axis.title.y = element_blank(), axis.title.x = element_blank(),
-        axis.text.y = element_blank(), axis.text.x = element_blank()) #+
-  #scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
+        axis.text.y = element_blank(), axis.text.x = element_blank())
 
 rec.ipsc <- lgg[["iPSC"]]$rec + ylim(0, rec.ymax) + xlim(0, xmax) + 
   theme(axis.title.y = element_blank(), axis.title.x = element_blank(),
-        axis.text.y = element_blank(), axis.text.x = element_blank()) # +
-  # scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
+        axis.text.y = element_blank(), axis.text.x = element_blank())
 
 f1.ipsc <- lgg[["iPSC"]]$f1score + ylim(0, f1.ymax) + xlim(0, xmax) +
   theme(axis.title.y = element_blank(), axis.title.x = element_blank(),
-        axis.text.y = element_blank()) # +
-  # scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
+        axis.text.y = element_blank())
 
+
+#--------------------------------------------
+# revised fig 4b -- prec/rec by ilength tiles
+#--------------------------------------------
 # make composite plot
 # format plot vars
 title.str <- paste0(paste0(rep(" ", 32), collapse = ""), 
