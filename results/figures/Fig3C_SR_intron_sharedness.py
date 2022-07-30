@@ -5,9 +5,9 @@ SR_intron_sharedness.py
 Python 3 code for plotting truth categories of shared called RIs
 
 SAMPLE RUN:
-time python ../../intronomer-paper/benchmarking_data/SR_intron_sharedness.py
+time python ri-tests/results/figures/SR_intron_sharedness.py
 -s target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR6026510-ipsc.csv
--o ../paper_results
+-o .
 """
 import argparse
 from datetime import datetime
@@ -15,7 +15,6 @@ import matplotlib.pyplot as plt
 import os
 import pandas as pd
 import upsetplot as up
-
 
 _THRSH = 'thresh'
 _LR_COUNT = 'longread_intron_count'
@@ -28,6 +27,7 @@ _IR_PREC = 'iREAD_precision'
 _IR_REC = 'iREAD_recall'
 _IR_INTS = 'iREAD_introns'
 _IR_F = 'iREAD_fscore'
+
 _INT_COUNT = 'all_IntEREst_RIs'
 _INT_OVERLAP = 'IntEREst_RI_overlap'
 _INT_TP = 'IntEREst_true_positives'
@@ -37,6 +37,7 @@ _INT_PREC = 'IntEREst_precision'
 _INT_REC = 'IntEREst_recall'
 _INT_INTS = 'IntEREst_introns'
 _INT_F = 'IntEREst_fscore'
+
 _SI_COUNT = 'all_superintronic_RIs'
 _SI_OVERLAP = 'superintronic_RI_overlap'
 _SI_TP = 'superintronic_true_positives'
@@ -46,6 +47,7 @@ _SI_PREC = 'superintronic_precision'
 _SI_REC = 'superintronic_recall'
 _SI_INTS = 'superintronic_introns'
 _SI_F = 'superintronic_fscore'
+
 _KMA_COUNT = 'all_kma_RIs'
 _KMA_OVERLAP = 'kma_RI_overlap'
 _KMA_TP = 'kma_true_positives'
@@ -55,6 +57,7 @@ _KMA_PREC = 'kma_precision'
 _KMA_REC = 'kma_recall'
 _KMA_INTS = 'kma_introns'
 _KMA_F = 'KMA_fscore'
+
 _IRFS_COUNT = 'all_IRFinder-S_RIs'
 _IRFS_OVERLAP = 'IRFinder-S_RI_overlap'
 _IRFS_TP = 'IRFinder-S_true_positives'
@@ -65,12 +68,46 @@ _IRFS_REC = 'IRFinder-S_recall'
 _IRFS_INTS = 'IRFinder-S_introns'
 _IRFS_F = 'IRFinder-S_fscore'
 
+_SUP_COUNT = 'all_SUPPA2_RIs'
+_SUP_OVERLAP = 'SUPPA2_RI_overlap'
+_SUP_TP = 'SUPPA2_true_positives'
+_SUP_FP = 'SUPPA2_false_positives'
+_SUP_FN = 'SUPPA2_false_negatives'
+_SUP_PREC = 'SUPPA2_precision'
+_SUP_REC = 'SUPPA2_recall'
+_SUP_INTS = 'SUPPA2_introns'
+_SUP_F = 'SUPPA2_fscore'
+
+_MAJ_COUNT = 'all_MAJIQ_RIs'
+_MAJ_OVERLAP = 'MAJIQ_RI_overlap'
+_MAJ_TP = 'MAJIQ_true_positives'
+_MAJ_FP = 'MAJIQ_false_positives'
+_MAJ_FN = 'MAJIQ_false_negatives'
+_MAJ_PREC = 'MAJIQ_precision'
+_MAJ_REC = 'MAJIQ_recall'
+_MAJ_INTS = 'MAJIQ_introns'
+_MAJ_F = 'MAJIQ_fscore'
+
+_RMA_COUNT = 'all_rMATS_RIs'
+_RMA_OVERLAP = 'rMATS_RI_overlap'
+_RMA_TP = 'rMATS_true_positives'
+_RMA_FP = 'rMATS_false_positives'
+_RMA_FN = 'rMATS_false_negatives'
+_RMA_PREC = 'rMATS_precision'
+_RMA_REC = 'rMATS_recall'
+_RMA_INTS = 'rMATS_introns'
+_RMA_F = 'rMATS_fscore'
+
 # FOR CONTINUOUS RI METRIC ANALYSIS
 _IR_COL_CONT = 'iread_fpkm_allintron_lwm'
 _INT_COL_CONT = 'interest_fpkm_allintron_lwm'
 _SI_COL_CONT = 'superintronic_score_allintron_lwm'
 _KMA_COL_CONT = 'kma_tpm_allintron_lwm'
 _IRFS_COL_CONT = 'irfinders_irratio_allintron_lwm'
+_SUP_COL_CONT = 'suppa2_psi_allintron_lwm'
+_MAJ_COL_CONT = 'majiq_meanpsi_allintron_lwm'
+_RMA_COL_CONT = 'rmats_inclvl_allintron_lwm'
+
 
 # FOR CONTINUOUS RI METRIC ANALYSIS
 _IR_COL_BIN = 'iread_fpkm_filtintron_lwm'
@@ -78,6 +115,9 @@ _INT_COL_BIN = 'interest_fpkm_filtintron_lwm'
 _SI_COL_BIN = 'superintronic_score_filtintron_lwm'
 _KMA_COL_BIN = 'kma_tpm_filtintron_lwm'
 _IRFS_COL_BIN = 'irfinders_irratio_filtintron_lwm'
+_SUP_COL_BIN = 'suppa2_psi_filtintron_lwm'
+_MAJ_COL_BIN = 'majiq_meanpsi_filtintron_lwm'
+_RMA_COL_BIN = 'rmats_inclvl_filtintron_lwm'
 
 _COUNT = 'count'
 _OVERLAP = 'overlap'
@@ -90,45 +130,78 @@ _INTS = 'introns'
 _TNAME = 'tool_name'
 _BIN_COL = 'binary column'
 _CONT_COL = 'continuous column'
+_FSCORE = 'f-score'
 
 _IR = 'iREAD'
 _SI = 'superintronic'
 _KMA = 'KMA'
 _INT = 'IntEREst'
 _IRFS = 'IRFinder-S'
+_SUP = 'SUPPA2'
+_RMA = 'rMATS'
+_MAJ = 'MAJIQ'
 
 _TOOLS = {
     _IR: {
         _COUNT: _IR_COUNT, _TP: _IR_TP, _FP: _IR_FP, _FN: _IR_FN,
         _PREC: _IR_PREC, _REC: _IR_REC, _INTS: _IR_INTS,
-        _OVERLAP: _IR_OVERLAP,
+        _OVERLAP: _IR_OVERLAP, _FSCORE: _IR_F,
         _BIN_COL: _IR_COL_BIN, _CONT_COL: _IR_COL_CONT
     },
     _INT: {
         _COUNT: _INT_COUNT, _TP: _INT_TP, _FP: _INT_FP, _FN: _INT_FN,
         _PREC: _INT_PREC, _REC: _INT_REC, _INTS: _INT_INTS,
-        _OVERLAP: _INT_OVERLAP,
+        _OVERLAP: _INT_OVERLAP, _FSCORE: _INT_F,
         _BIN_COL: _INT_COL_BIN, _CONT_COL: _INT_COL_CONT
     },
     _SI: {
         _COUNT: _SI_COUNT, _TP: _SI_TP, _FP: _SI_FP, _FN: _SI_FN,
         _PREC: _SI_PREC, _REC: _SI_REC, _INTS: _SI_INTS,
-        _OVERLAP: _SI_OVERLAP,
+        _OVERLAP: _SI_OVERLAP, _FSCORE: _SI_F,
         _BIN_COL: _SI_COL_BIN, _CONT_COL: _SI_COL_CONT
     },
     _KMA: {
         _COUNT: _KMA_COUNT, _TP: _KMA_TP, _FP: _KMA_FP, _FN: _KMA_FN,
         _PREC: _KMA_PREC, _REC: _KMA_REC, _INTS: _KMA_INTS,
-        _OVERLAP: _KMA_OVERLAP,
+        _OVERLAP: _KMA_OVERLAP, _FSCORE: _KMA_F,
         _BIN_COL: _KMA_COL_BIN, _CONT_COL: _KMA_COL_CONT
     },
     _IRFS: {
         _COUNT: _IRFS_COUNT, _TP: _IRFS_TP, _FP: _IRFS_FP, _FN: _IRFS_FN,
         _PREC: _IRFS_PREC, _REC: _IRFS_REC, _INTS: _IRFS_INTS,
-        _OVERLAP: _IRFS_OVERLAP,
+        _OVERLAP: _IRFS_OVERLAP, _FSCORE: _IRFS_F,
         _BIN_COL: _IRFS_COL_BIN, _CONT_COL: _IRFS_COL_CONT
+    },
+    _SUP: {
+        _COUNT: _SUP_COUNT, _TP: _SUP_TP, _FP: _SUP_FP, _FN: _SUP_FN,
+        _PREC: _SUP_PREC, _REC: _SUP_REC, _INTS: _SUP_INTS,
+        _OVERLAP: _SUP_OVERLAP, _FSCORE: _SUP_F,
+        _BIN_COL: _SUP_COL_BIN, _CONT_COL: _SUP_COL_CONT
+    },
+    _MAJ: {
+        _COUNT: _MAJ_COUNT, _TP: _MAJ_TP, _FP: _MAJ_FP, _FN: _MAJ_FN,
+        _PREC: _MAJ_PREC, _REC: _MAJ_REC, _INTS: _MAJ_INTS,
+        _OVERLAP: _MAJ_OVERLAP, _FSCORE: _MAJ_F,
+        _BIN_COL: _MAJ_COL_BIN, _CONT_COL: _MAJ_COL_CONT
+    },
+    _RMA: {
+        _COUNT: _RMA_COUNT, _TP: _RMA_TP, _FP: _RMA_FP, _FN: _RMA_FN,
+        _PREC: _RMA_PREC, _REC: _RMA_REC, _INTS: _RMA_INTS,
+        _OVERLAP: _RMA_OVERLAP, _FSCORE: _RMA_F,
+        _BIN_COL: _RMA_COL_BIN, _CONT_COL: _RMA_COL_CONT
     }
 }
+_TOOL_COLUMNS = [_IRFS, _SI, _IR, 'kma', _INT, _RMA, _MAJ, _SUP]
+
+_WIDTH = 'width'
+_POS = 'intron_position_in_tx'
+_MOTIF = 'motif'
+_READS = 'numreads.median'
+_TOT_F = 'total_overlapping_features'
+_MAX_F = 'max_features_per_base'
+_PERBASE_F = '%_bases_overlapped'
+_GC_PERC = 'gc_fract'
+_PERS = 'max_intron_persistence'
 
 
 def process_full_shortread_results(ranges_file, all_sr_introns):
@@ -157,6 +230,9 @@ def tp_fp_stacked_barplots(lr_introns, intron_sets, flag, out_dir, now,
         'superintronic': intron_sets[_TOOLS[_SI][_INTS]],
         'kma': intron_sets[_TOOLS[_KMA][_INTS]],
         'iREAD': intron_sets[_TOOLS[_IR][_INTS]],
+        _MAJ: intron_sets[_TOOLS[_MAJ][_INTS]],
+        _SUP: intron_sets[_TOOLS[_SUP][_INTS]],
+        _RMA: intron_sets[_TOOLS[_RMA][_INTS]],
     })
     if df_location:
         persistence = 'max_intron_persistence'
@@ -170,31 +246,31 @@ def tp_fp_stacked_barplots(lr_introns, intron_sets, flag, out_dir, now,
     if 'HX1' in flag:
         label_color = '#a90308'
         flag = 'HX1'
-        label_height = 11000
+        label_height = 8100
         label_xpos = 1
     else:
         label_color = '#0a437a'
         flag = 'iPSC'
-        label_height = 14000
+        label_height = 7800
         label_xpos = 1
 
     upset_df.reset_index(inplace=True)
 
-    tool_cols = ['IRFinder-S', 'IntEREst', 'superintronic', 'kma', 'iREAD']
+    tool_cols = _TOOL_COLUMNS
     tp_df = upset_df.loc[upset_df['pacbio'] == True][tool_cols].copy()
     fp_df = upset_df.loc[upset_df['pacbio'] == False][tool_cols].copy()
     sr_tps = [len(tp_df[tp_df.sum(axis=1) == 0])]
     sr_fps = [len(fp_df[fp_df.sum(axis=1) == 0])]
-    sharedness_levels = [1, 2, 3, 4, 5]
+    sharedness_levels = [1, 2, 3, 4, 5, 6, 7, 8]
     for val in sharedness_levels:
         sr_tps.append(len(tp_df[tp_df.sum(axis=1) >= val]))
         sr_fps.append(len(fp_df[fp_df.sum(axis=1) >= val]))
 
-    sr_fns = [sr_tps[0], 0, 0, 0, 0, 0]
+    sr_fns = [sr_tps[0], 0, 0, 0, 0, 0, 0, 0, 0]
     sr_tps[0] = 0
-    labels = ['0\n(LR only)', '1+', '2+', '3+', '4+', '5']
+    labels = ['0\n(LR only)', '1+', '2+', '3+', '4+', '5+', '6+', '7+', '8']
     shift = 0.2
-    label_locs = [1, 2, 3, 4, 5, 6]
+    label_locs = [1, 2, 3, 4, 5, 6, 7, 8, 9]
     left_locs = [loc - shift for loc in label_locs]
     right_locs = [loc + shift for loc in label_locs]
     tp_col = '#9db92c'

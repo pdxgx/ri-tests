@@ -74,12 +74,46 @@ _IRFS_REC = 'IRFinder-S_recall'
 _IRFS_INTS = 'IRFinder-S_introns'
 _IRFS_F = 'IRFinder-S_fscore'
 
+_SUP_COUNT = 'all_SUPPA2_RIs'
+_SUP_OVERLAP = 'SUPPA2_RI_overlap'
+_SUP_TP = 'SUPPA2_true_positives'
+_SUP_FP = 'SUPPA2_false_positives'
+_SUP_FN = 'SUPPA2_false_negatives'
+_SUP_PREC = 'SUPPA2_precision'
+_SUP_REC = 'SUPPA2_recall'
+_SUP_INTS = 'SUPPA2_introns'
+_SUP_F = 'SUPPA2_fscore'
+
+_MAJ_COUNT = 'all_MAJIQ_RIs'
+_MAJ_OVERLAP = 'MAJIQ_RI_overlap'
+_MAJ_TP = 'MAJIQ_true_positives'
+_MAJ_FP = 'MAJIQ_false_positives'
+_MAJ_FN = 'MAJIQ_false_negatives'
+_MAJ_PREC = 'MAJIQ_precision'
+_MAJ_REC = 'MAJIQ_recall'
+_MAJ_INTS = 'MAJIQ_introns'
+_MAJ_F = 'MAJIQ_fscore'
+
+_RMA_COUNT = 'all_rMATS_RIs'
+_RMA_OVERLAP = 'rMATS_RI_overlap'
+_RMA_TP = 'rMATS_true_positives'
+_RMA_FP = 'rMATS_false_positives'
+_RMA_FN = 'rMATS_false_negatives'
+_RMA_PREC = 'rMATS_precision'
+_RMA_REC = 'rMATS_recall'
+_RMA_INTS = 'rMATS_introns'
+_RMA_F = 'rMATS_fscore'
+
 # FOR CONTINUOUS RI METRIC ANALYSIS
 _IR_COL_CONT = 'iread_fpkm_allintron_lwm'
 _INT_COL_CONT = 'interest_fpkm_allintron_lwm'
 _SI_COL_CONT = 'superintronic_score_allintron_lwm'
 _KMA_COL_CONT = 'kma_tpm_allintron_lwm'
 _IRFS_COL_CONT = 'irfinders_irratio_allintron_lwm'
+_SUP_COL_CONT = 'suppa2_psi_allintron_lwm'
+_MAJ_COL_CONT = 'majiq_meanpsi_allintron_lwm'
+_RMA_COL_CONT = 'rmats_inclvl_allintron_lwm'
+
 
 # FOR CONTINUOUS RI METRIC ANALYSIS
 _IR_COL_BIN = 'iread_fpkm_filtintron_lwm'
@@ -87,7 +121,9 @@ _INT_COL_BIN = 'interest_fpkm_filtintron_lwm'
 _SI_COL_BIN = 'superintronic_score_filtintron_lwm'
 _KMA_COL_BIN = 'kma_tpm_filtintron_lwm'
 _IRFS_COL_BIN = 'irfinders_irratio_filtintron_lwm'
-
+_SUP_COL_BIN = 'suppa2_psi_filtintron_lwm'
+_MAJ_COL_BIN = 'majiq_meanpsi_filtintron_lwm'
+_RMA_COL_BIN = 'rmats_inclvl_filtintron_lwm'
 
 _COUNT = 'count'
 _OVERLAP = 'overlap'
@@ -100,12 +136,16 @@ _INTS = 'introns'
 _TNAME = 'tool_name'
 _BIN_COL = 'binary column'
 _CONT_COL = 'continuous column'
+_FSCORE = 'f-score'
 
 _IR = 'iREAD'
 _SI = 'superintronic'
 _KMA = 'KMA'
 _INT = 'IntEREst'
 _IRFS = 'IRFinder-S'
+_SUP = 'SUPPA2'
+_RMA = 'rMATS'
+_MAJ = 'MAJIQ'
 
 _TOOLS = {
     _IR: {
@@ -137,9 +177,36 @@ _TOOLS = {
         _PREC: _IRFS_PREC, _REC: _IRFS_REC, _INTS: _IRFS_INTS,
         _OVERLAP: _IRFS_OVERLAP,
         _BIN_COL: _IRFS_COL_BIN, _CONT_COL: _IRFS_COL_CONT
+    },
+    _SUP: {
+        _COUNT: _SUP_COUNT, _TP: _SUP_TP, _FP: _SUP_FP, _FN: _SUP_FN,
+        _PREC: _SUP_PREC, _REC: _SUP_REC, _INTS: _SUP_INTS,
+        _OVERLAP: _SUP_OVERLAP, _FSCORE: _SUP_F,
+        _BIN_COL: _SUP_COL_BIN, _CONT_COL: _SUP_COL_CONT
+    },
+    _MAJ: {
+        _COUNT: _MAJ_COUNT, _TP: _MAJ_TP, _FP: _MAJ_FP, _FN: _MAJ_FN,
+        _PREC: _MAJ_PREC, _REC: _MAJ_REC, _INTS: _MAJ_INTS,
+        _OVERLAP: _MAJ_OVERLAP, _FSCORE: _MAJ_F,
+        _BIN_COL: _MAJ_COL_BIN, _CONT_COL: _MAJ_COL_CONT
+    },
+    _RMA: {
+        _COUNT: _RMA_COUNT, _TP: _RMA_TP, _FP: _RMA_FP, _FN: _RMA_FN,
+        _PREC: _RMA_PREC, _REC: _RMA_REC, _INTS: _RMA_INTS,
+        _OVERLAP: _RMA_OVERLAP, _FSCORE: _RMA_F,
+        _BIN_COL: _RMA_COL_BIN, _CONT_COL: _RMA_COL_CONT
     }
 }
 
+_TOOL_COLUMNS = [_IRFS, _SI, _IR, _KMA, _INT, _RMA, _MAJ, _SUP]
+
+_WIDTH = 'width'
+_POS = 'intron_position_in_tx'
+_MOTIF = 'motif'
+_READS = 'numreads.median'
+_TOT_F = 'total_overlapping_features'
+_MAX_F = 'max_features_per_base'
+_PERBASE_F = '%_bases_overlapped'
 
 def process_full_shortread_results(ranges_file, all_sr_introns):
     cols_to_use = ['intron']
@@ -160,14 +227,17 @@ def process_full_shortread_results(ranges_file, all_sr_introns):
 
 
 def make_upset_plots(lr_introns, intron_sets, flag, thresh, out_dir, now,
-                     df_location=None):
+                     set_flag, df_location=None):
     upset_df = up.from_contents({
         'pacbio': lr_introns,
+        'superintronic': intron_sets[_TOOLS[_SI][_INTS]],
         'IRFinder-S': intron_sets[_TOOLS[_IRFS][_INTS]],
         'IntEREst': intron_sets[_TOOLS[_INT][_INTS]],
-        'superintronic': intron_sets[_TOOLS[_SI][_INTS]],
-        'kma': intron_sets[_TOOLS[_KMA][_INTS]],
         'iREAD': intron_sets[_TOOLS[_IR][_INTS]],
+        'kma': intron_sets[_TOOLS[_KMA][_INTS]],
+        _RMA: intron_sets[_TOOLS[_RMA][_INTS]],
+        _MAJ: intron_sets[_TOOLS[_MAJ][_INTS]],
+        _SUP: intron_sets[_TOOLS[_SUP][_INTS]],
     })
     if df_location:
         persistence = 'max_intron_persistence'
@@ -178,17 +248,19 @@ def make_upset_plots(lr_introns, intron_sets, flag, thresh, out_dir, now,
         upset_df['persistence'] = upset_df['id'].apply(
             lambda x: intron_ir[x]
         )
-    save_data = False
-    # save_data = True
+    # save_data = False
+    save_data = True
     if save_data:
         outfile = os.path.join(
-            out_dir, 'upset_data_{}_thresh{}_{}.csv'.format(flag, thresh, now)
+            out_dir, 'upset_data_{}_thresh{}_{}_{}.csv'.format(
+                flag, thresh, set_flag, now
+            )
         )
         with open(outfile, 'w') as output:
             upset_df.to_csv(output, sep=',')
         # return
 
-    if 'HX1' in flag:
+    if flag == 'HX1':
         edge = '#fcb001'
         fill = '#a90308'
     else:
@@ -210,8 +282,8 @@ def make_upset_plots(lr_introns, intron_sets, flag, thresh, out_dir, now,
     upset_plot.plot()
     fig = plt.gcf()
     fig_file = os.path.join(
-        out_dir, 'upset_overlaps_all_outlines_{}_thresh{}_{}.pdf'.format(
-            flag, thresh, now
+        out_dir, 'upset_overlaps_all_outlines_{}_thresh{}_{}_{}.pdf'.format(
+            flag, thresh, set_flag, now
         )
     )
     fig.savefig(fig_file, bbox_inches='tight', pad_inches=.1)
@@ -229,8 +301,8 @@ def make_upset_plots(lr_introns, intron_sets, flag, thresh, out_dir, now,
     upset_plot.plot()
     fig = plt.gcf()
     fig_file = os.path.join(
-        out_dir, 'upset_overlaps_TP_{}_thresh{}_{}.pdf'.format(
-            flag, thresh, now
+        out_dir, 'upset_overlaps_TP_{}_thresh{}_{}_{}.pdf'.format(
+            flag, thresh, set_flag, now
         )
     )
     fig.savefig(fig_file, bbox_inches='tight', pad_inches=.1)
@@ -269,8 +341,7 @@ def compare_long_to_short_reads(all_ranges, now, out_dir, all_sr):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='Extracts retained-intron exons from stringtie-assembled '
-                    'transcripts.'
+        description='Plots set overlaps between LR and SR tools.'
     )
     parser.add_argument(
         '--range-summarized-shortread-results', '-s',
