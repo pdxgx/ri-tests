@@ -4,7 +4,9 @@
 compare_validated_RI_genes.py
 Python 3 code for comparing called RIs against experimentally validated RIs
 
-time python intronomer-paper/benchmarking_data/compare_validated_RI_genes.py
+time python 
+ri-tests/data_preparation/processing/long_vs_short_reads/
+    compare_validated_RI_genes.py
 -H HX1_final/called_RIs/called_RI_data_summary_HX1featureannotated.tsv
 -e HX1_final/target_genes_HX1.txt
 -I iPSC_final/called_RIs/called_RI_data_summary_iPSCfeatureannotated.tsv
@@ -43,7 +45,8 @@ _GENE_SOURCE = {
     'MRAS': 'Li2021',
     # 2 introns in NDUFS7
     'NDUFS7': 'Li2021',
-    'NIFK': 'Li2021',
+    # removing NIFK because the actual gene is NIFK-AS
+    # 'NIFK': 'Li2021',
     'POLR2F': 'Li2021',
     'PTGDS': 'Li2021',
     'QTRT1': 'Li2021',

@@ -5,7 +5,9 @@ long_vs_short_read_RIs.py
 Python 3 code for comparing LR data w/ SR data, and calculating performance
 
 SAMPLE RUN:
-time python intronomer-paper/benchmarking_data/long_vs_short_read_RIs.py
+time python 
+ri-tests/data_preparation/processing/long_vs_short_reads/
+    long_vs_short_read_RIs.py
 -s target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR2911306-hx1.csv
 -o HX1_final/called_RIs -a
 
@@ -84,12 +86,47 @@ _IRFS_REC = 'IRFinder-S_recall'
 _IRFS_INTS = 'IRFinder-S_introns'
 _IRFS_F = 'IRFinder-S_fscore'
 
+_SUP_COUNT = 'all_SUPPA2_RIs'
+_SUP_OVERLAP = 'SUPPA2_RI_overlap'
+_SUP_TP = 'SUPPA2_true_positives'
+_SUP_FP = 'SUPPA2_false_positives'
+_SUP_FN = 'SUPPA2_false_negatives'
+_SUP_PREC = 'SUPPA2_precision'
+_SUP_REC = 'SUPPA2_recall'
+_SUP_INTS = 'SUPPA2_introns'
+_SUP_F = 'SUPPA2_fscore'
+
+_MAJ_COUNT = 'all_MAJIQ_RIs'
+_MAJ_OVERLAP = 'MAJIQ_RI_overlap'
+_MAJ_TP = 'MAJIQ_true_positives'
+_MAJ_FP = 'MAJIQ_false_positives'
+_MAJ_FN = 'MAJIQ_false_negatives'
+_MAJ_PREC = 'MAJIQ_precision'
+_MAJ_REC = 'MAJIQ_recall'
+_MAJ_INTS = 'MAJIQ_introns'
+_MAJ_F = 'MAJIQ_fscore'
+
+_RMA_COUNT = 'all_rMATS_RIs'
+_RMA_OVERLAP = 'rMATS_RI_overlap'
+_RMA_TP = 'rMATS_true_positives'
+_RMA_FP = 'rMATS_false_positives'
+_RMA_FN = 'rMATS_false_negatives'
+_RMA_PREC = 'rMATS_precision'
+_RMA_REC = 'rMATS_recall'
+_RMA_INTS = 'rMATS_introns'
+_RMA_F = 'rMATS_fscore'
+
+
 # FOR CONTINUOUS RI METRIC ANALYSIS
 _IR_COL_CONT = 'iread_fpkm_allintron_lwm'
 _INT_COL_CONT = 'interest_fpkm_allintron_lwm'
 _SI_COL_CONT = 'superintronic_score_allintron_lwm'
 _KMA_COL_CONT = 'kma_tpm_allintron_lwm'
 _IRFS_COL_CONT = 'irfinders_irratio_allintron_lwm'
+_SUP_COL_CONT = 'suppa2_psi_allintron_lwm'
+_MAJ_COL_CONT = 'majiq_meanpsi_allintron_lwm'
+_RMA_COL_CONT = 'rmats_inclvl_allintron_lwm'
+
 
 # FOR CONTINUOUS RI METRIC ANALYSIS
 _IR_COL_BIN = 'iread_fpkm_filtintron_lwm'
@@ -97,6 +134,9 @@ _INT_COL_BIN = 'interest_fpkm_filtintron_lwm'
 _SI_COL_BIN = 'superintronic_score_filtintron_lwm'
 _KMA_COL_BIN = 'kma_tpm_filtintron_lwm'
 _IRFS_COL_BIN = 'irfinders_irratio_filtintron_lwm'
+_SUP_COL_BIN = 'suppa2_psi_filtintron_lwm'
+_MAJ_COL_BIN = 'majiq_meanpsi_filtintron_lwm'
+_RMA_COL_BIN = 'rmats_inclvl_filtintron_lwm'
 
 _COUNT = 'count'
 _OVERLAP = 'overlap'
@@ -116,6 +156,9 @@ _SI = 'superintronic'
 _KMA = 'KMA'
 _INT = 'IntEREst'
 _IRFS = 'IRFinder-S'
+_SUP = 'SUPPA2'
+_RMA = 'rMATS'
+_MAJ = 'MAJIQ'
 
 _TOOLS = {
     _IR: {
@@ -147,9 +190,27 @@ _TOOLS = {
         _PREC: _IRFS_PREC, _REC: _IRFS_REC, _INTS: _IRFS_INTS,
         _OVERLAP: _IRFS_OVERLAP, _FSCORE: _IRFS_F,
         _BIN_COL: _IRFS_COL_BIN, _CONT_COL: _IRFS_COL_CONT
+    },
+    _SUP: {
+        _COUNT: _SUP_COUNT, _TP: _SUP_TP, _FP: _SUP_FP, _FN: _SUP_FN,
+        _PREC: _SUP_PREC, _REC: _SUP_REC, _INTS: _SUP_INTS,
+        _OVERLAP: _SUP_OVERLAP, _FSCORE: _SUP_F,
+        _BIN_COL: _SUP_COL_BIN, _CONT_COL: _SUP_COL_CONT
+    },
+    _MAJ: {
+        _COUNT: _MAJ_COUNT, _TP: _MAJ_TP, _FP: _MAJ_FP, _FN: _MAJ_FN,
+        _PREC: _MAJ_PREC, _REC: _MAJ_REC, _INTS: _MAJ_INTS,
+        _OVERLAP: _MAJ_OVERLAP, _FSCORE: _MAJ_F,
+        _BIN_COL: _MAJ_COL_BIN, _CONT_COL: _MAJ_COL_CONT
+    },
+    _RMA: {
+        _COUNT: _RMA_COUNT, _TP: _RMA_TP, _FP: _RMA_FP, _FN: _RMA_FN,
+        _PREC: _RMA_PREC, _REC: _RMA_REC, _INTS: _RMA_INTS,
+        _OVERLAP: _RMA_OVERLAP, _FSCORE: _RMA_F,
+        _BIN_COL: _RMA_COL_BIN, _CONT_COL: _RMA_COL_CONT
     }
 }
-_TOOL_COLUMNS = [_IRFS, _SI, _IR, _KMA, _INT]
+_TOOL_COLUMNS = [_IRFS, _SI, _IR, _KMA, _INT, _RMA, _MAJ, _SUP]
 
 _WIDTH = 'width'
 _POS = 'intron_position_in_tx'
@@ -188,6 +249,9 @@ def make_upset_plots(lr_introns, intron_sets, flag, thresh, out_dir, now,
         'IntEREst': intron_sets[_TOOLS[_INT][_INTS]],
         'iREAD': intron_sets[_TOOLS[_IR][_INTS]],
         'kma': intron_sets[_TOOLS[_KMA][_INTS]],
+        _RMA: intron_sets[_TOOLS[_RMA][_INTS]],
+        _MAJ: intron_sets[_TOOLS[_MAJ][_INTS]],
+        _SUP: intron_sets[_TOOLS[_SUP][_INTS]],
     })
     if df_location:
         persistence = 'max_intron_persistence'
@@ -332,11 +396,18 @@ def sr_vs_lr_intronsets(tx_df, all_ranges, now, out_dir, all_ints):
     threshold_df[_KMA_COUNT] = len(intron_sets[_TOOLS[_KMA][_INTS]])
     threshold_df[_SI_COUNT] = len(intron_sets[_TOOLS[_SI][_INTS]])
     threshold_df[_IRFS_COUNT] = len(intron_sets[_TOOLS[_IRFS][_INTS]])
+    threshold_df[_MAJ_COUNT] = len(intron_sets[_TOOLS[_MAJ][_INTS]])
+    threshold_df[_SUP_COUNT] = len(intron_sets[_TOOLS[_SUP][_INTS]])
+    threshold_df[_RMA_COUNT] = len(intron_sets[_TOOLS[_RMA][_INTS]])
+
     threshold_df = threshold_df[[
         _THRSH, _LR_COUNT, _IR_COUNT, _IR_OVERLAP, _IR_PREC, _IR_REC,
         _INT_COUNT, _INT_OVERLAP, _INT_PREC, _INT_REC, _SI_COUNT, _SI_OVERLAP,
         _SI_PREC, _SI_REC, _KMA_COUNT, _KMA_OVERLAP, _KMA_PREC, _KMA_REC,
-        _IRFS_COUNT, _IRFS_OVERLAP, _IRFS_PREC, _IRFS_REC
+        _IRFS_COUNT, _IRFS_OVERLAP, _IRFS_PREC, _IRFS_REC,
+        _RMA_COUNT, _RMA_OVERLAP, _RMA_PREC, _RMA_REC,
+        _MAJ_COUNT, _MAJ_OVERLAP, _MAJ_PREC, _MAJ_REC,
+        _SUP_COUNT, _SUP_OVERLAP, _SUP_PREC, _SUP_REC
     ]]
     df_file = os.path.join(
         out_dir, 'precision_recall_df_{}_{}_{}.csv'.format(flag, set_flag, now)
@@ -398,9 +469,12 @@ def sr_vs_lr_df_filtering(all_ranges, now, out_dir, all_ints):
             recall = true_pos / (true_pos + false_neg)
             pr_dict[_TOOLS[col][_PREC]].append(precision)
             pr_dict[_TOOLS[col][_REC]].append(recall)
-            pr_dict[_TOOLS[col][_FSCORE]].append(
-                (2 * precision * recall) / (precision + recall)
-            )
+            try:
+                pr_dict[_TOOLS[col][_FSCORE]].append(
+                    (2 * precision * recall) / (precision + recall)
+                )
+            except ZeroDivisionError:
+                pr_dict[_TOOLS[col][_FSCORE]].append(0)
     out_df = pd.DataFrame(pr_dict)
 
     col_order = []
@@ -536,8 +610,7 @@ def calculate_width(intron_coords):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='Extracts retained-intron exons from stringtie-assembled '
-                    'transcripts.'
+        description='compares long and short read set overlaps.'
     )
     parser.add_argument(
         '--range-summarized-shortread-results', '-s',

@@ -5,7 +5,8 @@ pacbio_reads_to_transcripts.py
 Python 3 code for mapping aligned pacbio reads to annotated transcripts
 
 SAMPLE RUN:
-time python intronomer-paper/benchmarking_data/pacbio_reads_to_transcripts.py
+time python 
+ri-tests/data_preparation/processing/longread/pacbio_reads_to_transcripts.py
 -g files/gencode.v34.annotation.gtf
 -a SRP065930_SAMN04251426.merged.aligned.sorted.bam
 """

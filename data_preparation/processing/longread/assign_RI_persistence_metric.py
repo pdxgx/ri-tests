@@ -5,7 +5,8 @@ assign_RI_persistence_metric.py
 Python 3 code for assigning read-transcript maps with intron persistence values
 
 SAMPLE RUN:
-time python intronomer-paper/benchmarking_data/assign_RI_persistence_metric.py
+time python 
+ri-tests/data_preparation/processing/longread/assign_RI_persistence_metric.py
 -m HX1_final/RI_txs_to_read_ids_final_01-06-2022_16.26.46.tsv
 
 Add -p for persistence-vs-intron position plotting
