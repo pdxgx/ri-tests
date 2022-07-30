@@ -10,10 +10,8 @@ library(ggplot2)
 # load data
 #----------
 plot.titlev <- c("HX1", "iPSC")
-#tsv.fname.ipsc <- "called_RI_data_summary_iPSC.tsv"
-#tsv.fname.hx1 <- "called_RI_data_summary_HX1.tsv"
-tsv.fname.hx1 <- "called-ri_data-summary_HX1_featureannotated_ianno.tsv"
-tsv.fname.ipsc <- "called-ri_data-summary_iPSC_featureannotated_ianno.tsv"
+tsv.fname.hx1 <- "called_RI_data_summary_HX1featureannotated_GCcontent_splicetype.tsv"
+tsv.fname.ipsc <- "called_RI_data_summary_iPSCfeatureannotated_GCcontent_splicetype.tsv"
 ltsv <- list()
 ltsv[["iPSC"]] <- read.table(tsv.fname.ipsc, sep = "\t", header = T)
 ltsv[["HX1"]] <- read.table(tsv.fname.hx1, sep = "\t", header = T)
@@ -29,7 +27,8 @@ do_binomtest <- function(ltsv, typev = c("HX1", "iPSC"),
                                        rep("tof.binned", 2), 
                                       rep("mfb.binned", 2), 
                                       rep("bol.binned", 2)),
-                         varstatv = c("u12", "u2", "other", "CTGC|GCAG", "GTAG|CTAC", "other", "long", "short",
+                         varstatv = c("u12", "u2", "other", "CTGC|GCAG", 
+                                      "GTAG|CTAC", "other", "long", "short",
                                        "high", "low", "high", "low", "high", "low"),
                          tmetricv = c("tp", "fp", "fn")){
   do.call(rbind, lapply(unique(names(ltsv)), function(samplei){
@@ -100,7 +99,8 @@ for(i in seq(length(ltsv))){
   q50i <- quantile(tsvi$width, na.rm = T)[3]
   tsvi$length.binned <- ifelse(tsvi$width >= q50i, "long", "short")
   lbin <- list()
-  for(ci.str in c("total_overlapping_features", "max_features_per_base","X._bases_overlapped")){
+  for(ci.str in c("total_overlapping_features", "max_features_per_base",
+                  "X._bases_overlapped", "gc_fract")){
     ci <- which(colnames(tsvi) == ci.str)
     q50i <- quantile(tsvi[tsvi[,ci] > 0,ci], na.rm = T)[3]
     lbin[[ci.str]] <- ifelse(tsvi[,ci] >= q50i, "high", "low")
@@ -134,6 +134,7 @@ tdfp$fp.four <- ifelse(is.fp.four, T, F)
 varv <- c("motif.binned", "length.binned", "tof.binned", 
           "mfb.binned", "bol.binned", "intron_type_annotation")
 dfp <- do.call(rbind, lapply(varv, function(vari){
+  message(vari)
   lvlv <- unique(tdfp[,vari]); lvlv <- lvlv[!is.na(lvlv)]
   dfpi <- do.call(rbind, lapply(c("HX1", "iPSC", "background"), function(samplei){
     if(samplei=="background"){tdfpi <- tdfp[!duplicated(tdfp$intron),]

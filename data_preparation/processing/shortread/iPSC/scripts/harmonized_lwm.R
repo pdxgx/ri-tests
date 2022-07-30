@@ -122,15 +122,52 @@ irfs.grf <- irfs.gr[irfs.gr$Warnings=="-" & irfs.gr$IRratio > 0.05]
 intv.gr <- grbind_summary(data.gr = irfs.grf, intv.gr = intv.gr, cname = "IRratio", 
                           new.cname = "irfinders_irratio_filtintron")
 
+# MAJIQ
+# Notes: Filter on expression flag and IRratio > 0.5
+mj.gr <- get(load(paste0("granges_majiq_", srrid,"-",run.handle,".rda")))
+mj.gr$majiq.ir.mean.psi <- as.numeric(mj.gr$majiq.ir.mean.psi)
+seqlevels(mj.gr) <- paste0("chr", seqlevels(mj.gr))
+# map all ranges
+intv.gr <- grbind_summary(data.gr = mj.gr, intv.gr = intv.gr, 
+                          cname = "majiq.ir.mean.psi", 
+                          new.cname = "majiq_meanpsi_allintron")
+# map filtered ranges
+mj.grf <- mj.gr[mj.gr$majiq.ir.mean.psi > 0.5]
+intv.gr <- grbind_summary(data.gr = mj.grf, intv.gr = intv.gr, 
+                          cname = "majiq.ir.mean.psi", 
+                          new.cname = "majiq_meanpsi_filtintron")
+
+# rMATS
+rm.gr <- get(load(paste0("granges_rmats_", srrid,"-",run.handle,".rda")))
+# map all ranges
+intv.gr <- grbind_summary(data.gr = rm.gr, intv.gr = intv.gr, 
+                          cname = "rmats.inclvl", 
+                          new.cname = "rmats_inclvl_allintron")
+# map filtered ranges
+rm.grf <- rm.gr[rm.gr$rmats.inclvl > 0.8]
+intv.gr <- grbind_summary(data.gr = rm.grf, intv.gr = intv.gr, 
+                          cname = "rmats.inclvl", 
+                          new.cname = "rmats_inclvl_filtintron")
+
+# SUPPA2
+sp.gr <- get(load(paste0("granges_suppa2_", srrid,"-",run.handle,".rda")))
+# map all ranges
+intv.gr <- grbind_summary(data.gr = sp.gr, intv.gr = intv.gr, cname = "psi", 
+                          new.cname = "suppa2_psi_allintron")
+# map filtered ranges
+sp.gr <- sp.gr[sp.gr$psi > 0.8]
+intv.gr <- grbind_summary(data.gr = sp.gr, intv.gr = intv.gr, cname = "psi", 
+                          new.cname = "suppa2_psi_filtintron")
+
 #-------------
 # save results
 #-------------
 # write new table
-csv.fname <- paste0("granges-lrmap_sr-5-methods_", srrid,"-",run.handle,".csv")
+csv.fname <- paste0("granges-lrmap_sr-8-methods_", srrid,"-",run.handle,".csv")
 write.csv(as.data.frame(intv.gr), file = csv.fname, row.names = F)
 
 # save new bound data
-gr.fname <- paste0("granges-lrmap_sr-5-methods_", srrid,"-",run.handle,".rda")
+gr.fname <- paste0("granges-lrmap_sr-8-methods_", srrid,"-",run.handle,".rda")
 save(intv.gr, file = gr.fname)
 
 #--------------------------------------
@@ -152,11 +189,15 @@ dfp$Tool <- ifelse(dfp$tool == "interest", "IntEREst",
                    ifelse(dfp$tool == "kma", "KMA",
                           ifelse(dfp$tool == "iread", "iREAD",
                                  ifelse(dfp$tool == "irfinders", "IRFinder-S",
-                                        dfp$tool))))
+                                        ifelse(dfp$tool == "rmats", "rMATS",
+                                               ifelse(dfp$tool == "majiq", "MAJIQ", 
+                                                      ifelse(dfp$tool == "suppa2", 
+                                                      "SUPPA2", dfp$tool)))))))
 
 # color palette
 pal <- c('IRFinder-S' = '#e1665d', 'superintronic' = '#f8b712', 
-         'iREAD' = '#689404', 'IntEREst' = '#745bad', 'KMA' = '#33a2b7')
+         'iREAD' = '#689404', 'IntEREst' = '#745bad', 'KMA' = '#33a2b7',
+         'rMATS' = '#DAF7A6', 'MAJIQ' = '#FFC0C0', 'SUPPA2' = '#abddff')
 
 # get plot object
 bp <- ggplot(dfp, aes(x = level, y = num.introns, fill = Tool)) + 

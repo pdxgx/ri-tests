@@ -1,0 +1,49 @@
+name: suppa2_env
+channels:
+  - bioconda
+  - r
+  - bcbio
+  - conda-forge
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=2_gnu
+  - blas=1.1=openblas
+  - boost-cpp=1.74.0=h6cacc03_7
+  - bzip2=1.0.8=h7f98852_4
+  - ca-certificates=2022.6.15=ha878542_0
+  - certifi=2017.1.23=py34_0
+  - icu=69.1=h9c3ff4c_0
+  - libgcc-ng=12.1.0=h8d9b700_16
+  - libgfortran=3.0.0=1
+  - libgomp=12.1.0=h8d9b700_16
+  - libjemalloc=5.2.1=h9c3ff4c_6
+  - libstdcxx-ng=12.1.0=ha89aaad_16
+  - libzlib=1.2.12=h166bdaf_1
+  - lz4-c=1.9.3=h9c3ff4c_1
+  - ncurses=5.9=10
+  - numpy=1.11.3=py34_blas_openblas_202
+  - openblas=0.2.19=2
+  - openssl=1.0.2u=h516909a_0
+  - pandas=0.20.3=py34_1
+  - patsy=0.5.1=py_0
+  - pip=20.3.4=pyhd8ed1ab_0
+  - python=3.4.5=2
+  - python-dateutil=2.8.1=py_0
+  - pytz=2022.1=pyhd8ed1ab_0
+  - readline=6.2=0
+  - salmon=1.9.0=h7e5ed60_0
+  - scikit-learn=0.18.2=py34_blas_openblas_201
+  - scipy=0.19.1=py34_blas_openblas_202
+  - setuptools=32.3.1=py34_0
+  - six=1.16.0=pyh6c4a22f_0
+  - sqlite=3.13.0=1
+  - statsmodels=0.6.1=np111py34_0
+  - suppa=2.3=py_2
+  - tbb=2021.5.0=h924138e_1
+  - tk=8.5.19=2
+  - wheel=0.37.1=pyhd8ed1ab_0
+  - xz=5.2.5=h516909a_1
+  - zlib=1.2.12=h166bdaf_1
+  - zstd=1.5.2=h8a70e8d_2
+prefix: /home/metamaden/anaconda3/envs/suppa2_env

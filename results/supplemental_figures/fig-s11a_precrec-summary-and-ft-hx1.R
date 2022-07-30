@@ -18,7 +18,8 @@ plot.title <- "HX1"
 # tsv called RIs
 # tsv.fname <- "nonzero_RI_data_summary_HX1featureannotated.tsv"
 # tsv <- read.table(tsv.fname, sep = "\t", header = T)
-tsv.fname <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR2911306-hx1.csv"
+# tsv.fname <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR2911306-hx1.csv"
+tsv.fname <- "subset_target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR2911306-hx1.csv"
 tsv <- read.csv(tsv.fname, header = T)
 
 #-----------------
@@ -28,7 +29,8 @@ tsv <- read.csv(tsv.fname, header = T)
 dfpr_bylrfilt <- function(tsv, lrfilt = seq(0.1, 0.9, 0.1), 
                           intron.type.cname = "filtintron", 
                           lr.metric.cname = "max_intron_persistence",
-                          tool.strv = c("interest", "superintronic", "iread", "kma", "irfinder")){
+                          tool.strv = c("interest", "superintronic", "iread", "kma", 
+                                        "irfinder", "majiq", "rmats", "suppa2")){
   do.call(rbind, lapply(lrfilt, function(min.lr){
     do.call(rbind, lapply(tool.strv, function(tooli){
       # get main df
@@ -57,7 +59,8 @@ dfpr_bylrfilt <- function(tsv, lrfilt = seq(0.1, 0.9, 0.1),
 # get prec/rec across min lr filters
 #-----------------------------------
 # get list of dfpr objects
-tool.strv = c("interest", "superintronic", "iread", "kma", "irfinders")
+tool.strv = c("interest", "superintronic", "iread", "kma", "irfinders", "majiq", 
+              "rmats", "suppa2")
 dfpr <- dfpr_bylrfilt(tsv)
 
 # get f1 score
@@ -68,42 +71,24 @@ dfpr$Tool <- ifelse(dfpr$tool=="interest", "IntEREst",
                     ifelse(dfpr$tool == "superintronic", "superintronic",
                            ifelse(dfpr$tool == "iread", "iREAD",
                                   ifelse(dfpr$tool == "kma", "KMA",
-                                         ifelse(dfpr$tool == "irfinder", "IRFinder-S", "NA")))))
-
+                                         ifelse(dfpr$tool == "irfinder", "IRFinder-S", 
+                                                ifelse(dfpr$tool=="majiq", "MAJIQ",
+                                                       ifelse(dfpr$tool == "rmats", "rMATS",
+                                                              ifelse(dfpr$tool == "suppa2", "SUPPA2", NA))))))))
 #-------------------
 # get quantiles data
 #-------------------
 # get plot data
 dfp <- do.call(rbind, lapply(tool.strv, function(tooli){
+  message(tooli)
   dfpri <- dfpr[dfpr$tool==tooli,]
-  qi.prec <- quantile(dfpri$precision)
-  qi.rec <- quantile(dfpri$recall)
-  qi.fm <- quantile(dfpri$fmeasure)
+  qi.prec <- quantile(dfpri$precision, na.rm = T)
+  qi.rec <- quantile(dfpri$recall, na.rm = T)
+  qi.fm <- quantile(dfpri$fmeasure, na.rm = T)
   data.frame(prec25 = qi.prec[2], prec50 = qi.prec[3], prec75 = qi.prec[4], 
              rec25 = qi.rec[2], rec50 = qi.rec[3], rec75 = qi.rec[4], 
              fm25 = qi.fm[2], fm50 = qi.fm[3], fm75 = qi.fm[4], 
              tool = tooli)
-}))
-
-lpr.lrfilt <- lapply(list("all" = tsv.cont, "filt" = tsv), function(tsv){
-  dfpr <- dfpr_bylrfilt(tsv)
-  # get plot data
-  dfp <- do.call(rbind, lapply(tool.strv, function(tooli){
-    dfpri <- dfpr[dfpr$tool==tooli,]
-    qi.prec <- quantile(dfpri$precision); qi.rec <- quantile(dfpri$recall)
-    qi.fm <- quantile(dfpri$fmeasure)
-    data.frame(prec25 = qi.prec[2], prec50 = qi.prec[3], prec75 = qi.prec[4], 
-               rec25 = qi.rec[2], rec50 = qi.rec[3], rec75 = qi.rec[4], 
-               fm25 = qi.fm[2], fm50 = qi.fm[3], fm75 = qi.fm[4], 
-               tool = tooli)
-  }))
-  return(list(dfpr = dfpr, dfp = dfp))
-})
-names(lpr.lrfilt) <- c("all", "filt")
-
-# bind dfps
-dfp <- do.call(rbind, lapply(names(lpr.lrfilt), function(namei){
-  dfpi <- lpr.lrfilt[[namei]][[2]]; dfpi$type <- namei; dfpi
 }))
 
 # format vars
@@ -111,6 +96,9 @@ dfp[dfp$tool=="interest",]$tool <- "IntEREst"
 dfp[dfp$tool=="iread",]$tool <- "iREAD"
 dfp[dfp$tool=="irfinders",]$tool <- "IRFinder-S"
 dfp[dfp$tool=="kma",]$tool <- "KMA"
+dfp[dfp$tool=="majiq",]$tool <- "MAJIQ"
+dfp[dfp$tool=="rmats",]$tool <- "rMATS"
+dfp[dfp$tool=="suppa2",]$tool <- "SUPPA2"
 dfp$`RI detection\ntool` <- dfp$tool
 
 #--------------------------------------------
@@ -118,7 +106,8 @@ dfp$`RI detection\ntool` <- dfp$tool
 #--------------------------------------------
 # get the color palette:
 pal <- c('IRFinder-S' = '#e1665d', 'superintronic' = '#f8b712', 
-         'iREAD' = '#689404', 'IntEREst' = '#745bad', 'KMA' = '#33a2b7')
+         'iREAD' = '#689404', 'IntEREst' = '#745bad', 'KMA' = '#33a2b7',
+         'rMATS' = '#DAF7A6', 'MAJIQ' = '#FFC0C0', 'SUPPA2' = '#abddff')
 
 # format vars
 # barplots fmeasure

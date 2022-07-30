@@ -11,19 +11,17 @@ library(gridExtra)
 #----------
 # load data
 #----------
-titlev <- c("HX1", "iPSC")
-
 # get background table
-plot.titlev <- c("HX1", "iPSC")
-tsv.fname.ipsc <- "called_RI_data_summary_iPSC.tsv"
-tsv.fname.hx1 <- "called_RI_data_summary_HX1.tsv"
+titlev <- c("HX1", "iPSC")
+tsv.fname.ipsc <- "called_RI_data_summary_iPSCfeatureannotated_GCcontent.tsv"
+tsv.fname.hx1 <- "called_RI_data_summary_HX1featureannotated_GCcontent.tsv"
 ltsv <- list()
 ltsv[["iPSC"]] <- read.table(tsv.fname.ipsc, sep = "\t", header = T)
 ltsv[["HX1"]] <- read.table(tsv.fname.hx1, sep = "\t", header = T)
 
 # get gene candidate tables
-genes.fname.hx1 <- "HX1_validatedONLY_RI_genes_02-23-2022_12.56.31.tsv"
-genes.fname.ipsc <- "iPSC_validatedONLY_RI_genes_02-23-2022_12.56.31.tsv"
+genes.fname.hx1 <- "HX1_validatedONLY_RI_genes_07-23-2022_20.11.09.tsv"
+genes.fname.ipsc <- "iPSC_validatedONLY_RI_genes_07-23-2022_20.11.09.tsv"
 lgenes <- list()
 lgenes[["HX1"]] <- read.table(genes.fname.hx1, sep = "\t", header = T)
 lgenes[["iPSC"]] <- read.table(genes.fname.ipsc, sep = "\t", header = T)
@@ -137,21 +135,55 @@ for(i in seq(length(titlev))){
   lgg[["legend"]] <- plot.legend
 }
 
-# make new composite plot
-plot.fname <- "ggbarplot-tool-tmetricct_validategenes_2samples-combined"
-lm <- matrix(c(rep(c(1,2,3,4), each = 3), 5), nrow = 1, ncol = 13)
+# make separate plots by sample -- HX1
+plot.fname <- "ggbarplot-tool-tmetricct_validategenes_hx1-combined"
+width <- 7; height <- 3.5
+lm <- matrix(c(rep(1,3), rep(2, 3), rep(3,1)),nrow =1)
 # new pdf
-pdf(paste0(plot.fname, ".pdf"), 8, 6.5)
+pdf(paste0(plot.fname, ".pdf"), width, height)
 grid.arrange(lgg[["HX1"]][[1]], lgg[["HX1"]][[2]], 
-             lgg[["iPSC"]][[1]], lgg[["iPSC"]][[2]],
-             ggpubr::as_ggplot(lgg$legend), layout_matrix = lm)
+             ggpubr::as_ggplot(lgg$legend),
+             nrow = 1, layout_matrix = lm)
 dev.off()
 # new png
-png(paste0(plot.fname, ".png"), width = 8, height = 6.5, units = "in", res = 500)
-grid.arrange(lgg[["HX1"]][[1]], lgg[["HX1"]][[2]], 
-             lgg[["iPSC"]][[1]], lgg[["iPSC"]][[2]],
+png(paste0(plot.fname, ".png"), width = width, height = height, 
+    units = "in", res = 500)
+grid.arrange(lgg[["HX1"]][[1]], lgg[["HX1"]][[2]],
              ggpubr::as_ggplot(lgg$legend), layout_matrix = lm)
 dev.off()
+
+# make separate plots by sample -- iPSC
+plot.fname <- "ggbarplot-tool-tmetricct_validategenes_ipsc-combined"
+width <- 7; height <- 6
+lm <- matrix(c(rep(1,3), rep(2, 3), rep(3,1)),nrow =1)
+# new pdf
+pdf(paste0(plot.fname, ".pdf"), width, height)
+grid.arrange(lgg[["iPSC"]][[1]], lgg[["iPSC"]][[2]], 
+             ggpubr::as_ggplot(lgg$legend),
+             nrow = 1, layout_matrix = lm)
+dev.off()
+# new png
+png(paste0(plot.fname, ".png"), width = width, height = height, 
+    units = "in", res = 500)
+grid.arrange(lgg[["iPSC"]][[1]], lgg[["iPSC"]][[2]],
+             ggpubr::as_ggplot(lgg$legend), layout_matrix = lm)
+dev.off()
+
+# make new composite plot
+# plot.fname <- "ggbarplot-tool-tmetricct_validategenes_2samples-combined"
+# lm <- matrix(c(rep(c(1,2,3,4), each = 3), 5), nrow = 1, ncol = 13)
+# new pdf
+# pdf(paste0(plot.fname, ".pdf"), 8, 6.5)
+# grid.arrange(lgg[["HX1"]][[1]], lgg[["HX1"]][[2]], 
+#              lgg[["iPSC"]][[1]], lgg[["iPSC"]][[2]],
+#              ggpubr::as_ggplot(lgg$legend), layout_matrix = lm)
+# dev.off()
+# new png
+# png(paste0(plot.fname, ".png"), width = 8, height = 6.5, units = "in", res = 500)
+# grid.arrange(lgg[["HX1"]][[1]], lgg[["HX1"]][[2]], 
+#              lgg[["iPSC"]][[1]], lgg[["iPSC"]][[2]],
+#              ggpubr::as_ggplot(lgg$legend), layout_matrix = lm)
+# dev.off()
 
 #-----------------------------
 # truth metric calls grid plot
@@ -160,7 +192,8 @@ dev.off()
 pal <- c("FN" = "#6d9cc6", "FP" = "#d8788a", "TP" = "#9db92c", "TN" = "#ffc18f")
 
 # get the plot data
-toolv <- c("IntEREst", "iREAD", "IRFinder.S", "superintronic", "kma")
+toolv <- c("IntEREst", "iREAD", "IRFinder.S", "superintronic", "kma", "MAJIQ", 
+           "rMATS", "SUPPA2")
 cnv <- colnames(lgenes[[1]]); 
 dfp <- do.call(rbind, lapply(names(lgenes), function(samplei){
   mgenei <- lgenes[[samplei]]

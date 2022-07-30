@@ -12,10 +12,9 @@ library(gridExtra)
 # load data
 #-----------
 plot.titlev <- c("HX1", "iPSC")
-#tsv.fname.ipsc <- "LR_annotated_granges-lrmap_sr-5-methods_SRR6026510-ipsc.csv"
-#tsv.fname.hx1 <- "LR_annotated_granges-lrmap_sr-5-methods_SRR2911306-hx1.csv"
-tsv.fname.hx1 <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR2911306-hx1.csv"
-tsv.fname.ipsc <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR6026510-ipsc.csv"
+tsv.fname.ipsc <- "subset_target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR6026510-ipsc.csv"
+tsv.fname.hx1 <- "subset_target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR2911306-hx1.csv"
+
 tsv.ipsc <- read.csv(tsv.fname.ipsc)
 tsv.hx1 <- read.csv(tsv.fname.hx1)
 # define the lr metric
@@ -34,8 +33,11 @@ ltsv.all <- list("iPSC" = tsv.ipsc[,cnv], "HX1" = tsv.hx1[,cnv])
 #-----------------
 # get precision and recall from a dfp of truth metrics
 dfpr_bylrfilt <- function(tsv, lrfilt = seq(0.1, 0.9, 0.1), 
-                          intron.type.cname = "filtintron", lr.metric.cname = "max_intron_persistence",
-                          tool.strv = c("interest", "superintronic", "iread", "kma", "irfinders")){
+                          intron.type.cname = "filtintron", 
+                          lr.metric.cname = "max_intron_persistence",
+                          tool.strv = c("interest", "superintronic", "iread", 
+                                        "kma", "irfinders", "rmats", "majiq", 
+                                        "suppa2")){
   do.call(rbind, lapply(lrfilt, function(min.lr){
     do.call(rbind, lapply(tool.strv, function(tooli){
       # get main df
@@ -63,7 +65,8 @@ dfpr_bylrfilt <- function(tsv, lrfilt = seq(0.1, 0.9, 0.1),
 # get quantiles data
 #-------------------
 # get prec/rec across min lr filters
-tool.strv = c("interest", "superintronic", "iread", "kma", "irfinders")
+tool.strv = c("interest", "superintronic", "iread", "kma", "irfinders", "rmats",
+              "majiq", "suppa2")
 lltsv <- list("potential" = ltsv.all, "called" = ltsv)
 ldfp <- lapply(seq(length(lltsv)), function(ii){
   intron.type <- names(lltsv)[ii]
@@ -77,8 +80,10 @@ ldfp <- lapply(seq(length(lltsv)), function(ii){
     dfpr$type <- intron.type; dfpr$sample <- sample.type; return(dfpr)
   })
 })
-ldfp <- list("potential_ipsc" = ldfp[[1]][[2]], "potential_hx1" = ldfp[[1]][[1]],
-             "called_ipsc" = ldfp[[2]][[2]], "called_hx1" = ldfp[[2]][[1]])
+ldfp <- list("potential_ipsc" = ldfp[[1]][[1]], 
+             "potential_hx1" = ldfp[[1]][[2]],
+             "called_ipsc" = ldfp[[2]][[1]], 
+             "called_hx1" = ldfp[[2]][[2]])
 
 # get plot data
 dfp <- do.call(rbind, lapply(seq(length(ldfp)), function(ii){
@@ -86,7 +91,8 @@ dfp <- do.call(rbind, lapply(seq(length(ldfp)), function(ii){
   do.call(rbind, lapply(tool.strv, function(tooli){
     dfpii <- dfpi[dfpi$tool==tooli,]
     qi.prec <- quantile(dfpii$precision); qi.rec <- quantile(dfpii$recall)
-    qi.fm <- quantile(dfpii$fmeasure); metric <- rep(c("precision", "recall", "f1score"), each = 1)
+    qi.fm <- quantile(dfpii$fmeasure, na.rm = T)
+    metric <- rep(c("precision", "recall", "f1score"), each = 1)
     data.frame(value50 = c(qi.prec[3], qi.rec[3], fm50 = qi.fm[3]), 
                value25 = c(qi.prec[2], qi.rec[2], qi.fm[2]), 
                value75 = c(qi.prec[4], qi.rec[4], qi.fm[4]),
@@ -100,6 +106,9 @@ dfp[dfp$tool=="interest",]$tool <- "IntEREst"
 dfp[dfp$tool=="iread",]$tool <- "iREAD"
 dfp[dfp$tool=="irfinders",]$tool <- "IRFinder-S"
 dfp[dfp$tool=="kma",]$tool <- "KMA"
+dfp[dfp$tool=="majiq",]$tool <- "MAJIQ"
+dfp[dfp$tool=="rmats",]$tool <- "rMATS"
+dfp[dfp$tool=="suppa2",]$tool <- "SUPPA2"
 dfp$Tool <- dfp$tool
 dfp$sample <- gsub(".*_", "", dfp$type)
 dfp$intron_type <- gsub("_.*", "", dfp$type)
@@ -125,15 +134,16 @@ dfp.ipsc <- cbind(dfp.ipsc.call, dfp.ipsc.pot)
 #-----------------
 # get the color palette:
 pal <- c('IRFinder-S' = '#e1665d', 'superintronic' = '#f8b712', 
-         'iREAD' = '#689404', 'KMA' = '#33a2b7', 'IntEREst' = '#745bad')
+         'iREAD' = '#689404', 'IntEREst' = '#745bad', 'KMA' = '#33a2b7',
+         'rMATS' = '#DAF7A6', 'MAJIQ' = '#FFC0C0', 'SUPPA2' = '#abddff')
 
 # axis maxima
-prec.called.max <- 0.06
-prec.potential.max <- 0.025
-rec.called.max <- 0.35
-rec.potential.max <- 0.71
-f1.called.max <- 0.1
-f1.potential.max <- 0.05
+prec.called.max <- 0.24
+prec.potential.max <- 0.13
+rec.called.max <- 0.65
+rec.potential.max <- 0.78
+f1.called.max <- 0.25
+f1.potential.max <- 0.2
 
 # error bar widths/heights
 prec.ebw.xaxis <- 0.005
@@ -158,9 +168,9 @@ prec.hx1 <- ggplot(dfp.hx1[dfp.hx1$metric_called == "precision",],
         axis.text.x = element_blank()) +
   ggtitle("Precision") +
   scale_y_continuous(limits = c(0, prec.called.max), 
-                     breaks = seq(0, prec.called.max, by = 0.02)) +
+                     breaks = seq(0, prec.called.max, by = 0.05)) +
   scale_x_continuous(limits = c(0, prec.potential.max), 
-                     breaks = seq(0, prec.potential.max, by = 0.01))
+                     breaks = seq(0, prec.potential.max, by = 0.05))
 
 prec.ipsc <- ggplot(dfp.ipsc[dfp.ipsc$metric_called == "precision",], 
                     aes(x = value50_potential, y = value50_called, color = tool_called)) + 
@@ -175,9 +185,9 @@ prec.ipsc <- ggplot(dfp.ipsc[dfp.ipsc$metric_called == "precision",],
         axis.title.x = element_blank(), 
         axis.title.y = element_blank()) +
   scale_y_continuous(limits = c(0, prec.called.max), 
-                     breaks = seq(0, prec.called.max, by = 0.02)) +
+                     breaks = seq(0, prec.called.max, by = 0.05)) +
   scale_x_continuous(limits = c(0, prec.potential.max), 
-                     breaks = seq(0, prec.potential.max, by = 0.01))
+                     breaks = seq(0, prec.potential.max, by = 0.05))
 
 rec.hx1 <- ggplot(dfp.hx1[dfp.hx1$metric_called == "recall",], 
                   aes(x = value50_potential, y = value50_called, color = tool_called)) + 
@@ -194,7 +204,7 @@ rec.hx1 <- ggplot(dfp.hx1[dfp.hx1$metric_called == "recall",],
         axis.text.x = element_blank()) +
   ggtitle("Recall") +
   scale_y_continuous(limits = c(0, rec.called.max), 
-                     breaks = seq(0, rec.called.max, by = 0.1))
+                     breaks = seq(0, rec.called.max, by = 0.2))
 
 rec.ipsc <- ggplot(dfp.ipsc[dfp.ipsc$metric_called == "recall",], 
                   aes(x = value50_potential, y = value50_called, color = tool_called)) + 
@@ -209,7 +219,7 @@ rec.ipsc <- ggplot(dfp.ipsc[dfp.ipsc$metric_called == "recall",],
         axis.title.x = element_blank(), 
         axis.title.y = element_blank()) +
   scale_y_continuous(limits = c(0, rec.called.max), 
-                     breaks = seq(0, rec.called.max, by = 0.1))
+                     breaks = seq(0, rec.called.max, by = 0.2))
 
 f1.hx1 <- ggplot(dfp.hx1[dfp.hx1$metric_called == "f1score",], 
                  aes(x = value50_potential, y = value50_called, color = tool_called)) + 
@@ -226,9 +236,9 @@ f1.hx1 <- ggplot(dfp.hx1[dfp.hx1$metric_called == "f1score",],
         axis.text.x = element_blank()) +
   ggtitle("F1-score") +
   scale_y_continuous(limits = c(0, f1.called.max), 
-                     breaks = seq(0, f1.called.max, by = 0.02)) +
+                     breaks = seq(0, f1.called.max, by = 0.05)) +
   scale_x_continuous(limits = c(0, f1.potential.max), 
-                     breaks = seq(0, f1.potential.max, by = 0.01))
+                     breaks = seq(0, f1.potential.max, by = 0.05))
   
 
 f1.ipsc <- ggplot(dfp.ipsc[dfp.ipsc$metric_called == "f1score",], 
@@ -244,9 +254,9 @@ f1.ipsc <- ggplot(dfp.ipsc[dfp.ipsc$metric_called == "f1score",],
         axis.title.x = element_blank(), 
         axis.title.y = element_blank()) +
   scale_y_continuous(limits = c(0, f1.called.max), 
-                     breaks = seq(0, f1.called.max, by = 0.02)) +
+                     breaks = seq(0, f1.called.max, by = 0.05)) +
   scale_x_continuous(limits = c(0, f1.potential.max), 
-                     breaks = seq(0, f1.potential.max, by = 0.01))
+                     breaks = seq(0, f1.potential.max, by = 0.05))
   
 dfp.ipsc$Tool <- dfp.ipsc$tool_called
 plot.legend <- ggplot(dfp.ipsc, aes(x = value50_potential, 
@@ -270,7 +280,7 @@ ylab.str <- paste0(paste0(rep(" ", 5), collapse = ""), "iPSC",
 xlab.str <- paste0("Potential RIs", paste0(rep(" ", 20), collapse = ""), collapse = "")
 
 # save figure
-plot.fname <- "ggpt-iqr_prec-rec-f1_combined-2samples"
+plot.fname <- "ggpt-iqr_prec-rec-f1_reviewer-subset_combined-2samples"
 # new pdf
 pdf.fname <- paste0(plot.fname, ".pdf")
 pdf(pdf.fname, 7.2, 3.5)

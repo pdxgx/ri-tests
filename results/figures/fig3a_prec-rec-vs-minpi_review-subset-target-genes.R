@@ -13,8 +13,9 @@ library(gridExtra)
 #-----------
 # get background table
 plot.titlev <- c("HX1", "iPSC")
-tsv.fname.hx1 <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR2911306-hx1.csv"
-tsv.fname.ipsc <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR6026510-ipsc.csv"
+tsv.fname.ipsc <- "subset_target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR6026510-ipsc.csv"
+tsv.fname.hx1 <- "subset_target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR2911306-hx1.csv"
+
 ltsv <- list()
 ltsv[["iPSC"]] <- read.csv(tsv.fname.ipsc, header = T)
 ltsv[["HX1"]] <- read.csv(tsv.fname.hx1, header = T)
@@ -24,7 +25,8 @@ ltsv[["HX1"]] <- read.csv(tsv.fname.hx1, header = T)
 #-----------------
 dfpr_bylrfilt <- function(tsv, lrfilt = seq(0.1, 0.9, 0.1), 
                           intron.type.cname = "filtintron", lr.metric.cname = "max_intron_persistence",
-                          tool.strv = c("interest", "superintronic", "iread", "kma", "irfinders")){
+                          tool.strv = c("interest", "superintronic", "iread", "kma", "irfinders",
+                                        "rmats", "majiq", "suppa2")){
   do.call(rbind, lapply(lrfilt, function(min.lr){
     do.call(rbind, lapply(tool.strv, function(tooli){
       # get main df
@@ -51,7 +53,8 @@ dfpr_bylrfilt <- function(tsv, lrfilt = seq(0.1, 0.9, 0.1),
 #----------------
 # get plot data
 #----------------
-tool.strv = c("interest", "si", "iread", "kma", "irfinders")
+tool.strv = c("interest", "si", "iread", "kma", "irfinders", 
+              "rmats", "majiq", "suppa2")
 # get prec/rec across min lr filters
 ldfpr <- lapply(ltsv, function(tsvi){
   dfpr <- dfpr_bylrfilt(tsvi)
@@ -62,14 +65,19 @@ ldfpr <- lapply(ltsv, function(tsvi){
                       ifelse(dfpr$tool == "superintronic", "superintronic",
                              ifelse(dfpr$tool == "iread", "iREAD",
                                     ifelse(dfpr$tool == "kma", "KMA",
-                                           ifelse(dfpr$tool == "irfinders", "IRFinder-S", "NA")))))
+                                           ifelse(dfpr$tool == "irfinders", "IRFinder-S", 
+                                                  ifelse(dfpr$tool == "rmats", "rMATS", 
+                                                         ifelse(dfpr$tool == "majiq", "MAJIQ", 
+                                                                ifelse(dfpr$tool == "suppa2", 
+                                                                       "SUPPA2", "NA"))))))))
   dfpr
 })
 # names(ldfpr) <- names(ltsv)
 
 # get the color palette:
 pal <- c('IRFinder-S' = '#e1665d', 'superintronic' = '#f8b712', 
-         'iREAD' = '#689404', 'IntEREst' = '#745bad', 'KMA' = '#33a2b7')
+         'iREAD' = '#689404', 'IntEREst' = '#745bad', 'KMA' = '#33a2b7',
+         'rMATS' = '#DAF7A6', 'MAJIQ' = '#FFC0C0', 'SUPPA2' = '#abddff')
 alpha.val <- 1 # set transparency
 pt.size <- 1.2; line.size <- 1 # set point and line size
 xlab.str <- "Minimum persistence"
@@ -102,9 +110,9 @@ names(lgg) <- c("iPSC", "HX1")
 
 # make composite plot objects
 xlim.min <- 0.1; xlim.max <- 0.9
-ymax.prec <- 0.2
-ymax.rec <- 0.4
-ymax.f1 <- 0.25
+ymax.prec <- 0.4
+ymax.rec <- 0.7
+ymax.f1 <- 0.28
 prec.hx1 <- lgg[["HX1"]]$prec + ylim(0, ymax.prec) + xlim(xlim.min, xlim.max) +
   theme(axis.title.x = element_blank(), axis.text.x = element_blank()) +
   scale_x_continuous(breaks = seq(xlim.min, xlim.max, 0.1))
@@ -138,10 +146,11 @@ title.str <- paste0(paste0(rep(" ", 32), collapse = ""),
                     "HX1", paste0(rep(" ", 52), collapse = ""), 
                     "iPSC", paste0(rep(" ", 90), collapse = ""),
                     collapse = "")
-xlab.str <- paste0("Minimum persistence", paste0(rep(" ", 10), collapse = ""), collapse = "")
+xlab.str <- paste0("Minimum persistence", paste0(rep(" ", 10), collapse = ""), 
+                   collapse = "")
 
 # save new figures
-plot.fname <- "ggptline_prec-rec-by-lrpersistence_combined-2samples"
+plot.fname <- "ggptline_prec-rec-by-lrpersistence_reviewer-subset_combined-2samples"
 # pdf
 pdf.fname <- paste0(plot.fname, ".pdf")
 pdf(pdf.fname, 7, 3.5)

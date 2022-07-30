@@ -12,15 +12,17 @@ library(gridExtra)
 # load data
 #----------
 plot.titlev <- c("HX1", "iPSC")
-tsv.fname.hx1 <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR2911306-hx1.csv"
-tsv.fname.ipsc <- "target_genes_LR_annotated_granges-lrmap_sr-5-methods_SRR6026510-ipsc.csv"
+tsv.fname.hx1 <- "subset_target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR2911306-hx1.csv"
+tsv.fname.ipsc <- "subset_target_genes_LR_annotated_granges-lrmap_sr-8-methods_SRR6026510-ipsc.csv"
+
 ltsv <- list()
 ltsv[["iPSC"]] <- read.csv(tsv.fname.ipsc)
 ltsv[["HX1"]] <- read.csv(tsv.fname.hx1)
 
 # get the color palette:
 pal <- c('IRFinder-S' = '#e1665d', 'superintronic' = '#f8b712', 
-         'iREAD' = '#689404', 'IntEREst' = '#745bad', 'KMA' = '#33a2b7')
+         'iREAD' = '#689404', 'IntEREst' = '#745bad', 'KMA' = '#33a2b7',
+         'rMATS' = '#DAF7A6', 'MAJIQ' = '#FFC0C0', 'SUPPA2' = '#abddff')
 
 #-----------------
 # helper functions
@@ -29,7 +31,9 @@ pal <- c('IRFinder-S' = '#e1665d', 'superintronic' = '#f8b712',
 dfpr_bylenfilt <- function(tsv, len.filt, min.lr = 0.1, 
                            intron.type.cname = "filtintron", 
                            lr.metric.cname = "max_intron_persistence",
-                           tool.strv = c("interest", "superintronic", "iread", "kma", "irfinders")){
+                           tool.strv = c("interest", "superintronic", "iread", 
+                                         "kma", "irfinders", "rmats", "majiq",
+                                         "suppa2")){
   do.call(rbind, lapply(len.filt, function(min.len){
     do.call(rbind, lapply(tool.strv, function(tooli){
       # get main df
@@ -60,7 +64,8 @@ dfpr_bylenfilt_binned <- function(tsv, len.filt, min.lr = 0.1, bin.size = 500,
                                   intron.type.cname = "filtintron", 
                                   lr.metric.cname = "max_intron_persistence",
                                   tool.strv = c("interest", "superintronic", 
-                                                "iread", "kma", "irfinders")){
+                                                "iread", "kma", "irfinders",
+                                                "rmats", "majiq", "suppa2")){
   do.call(rbind, lapply(seq(length(len.filt)), function(ii){
     do.call(rbind, lapply(tool.strv, function(tooli){
       # get main df
@@ -112,7 +117,8 @@ ldfpr <- lapply(ltsv, function(tsvi){
 
 # get the color palette:
 pal <- c('IRFinder-S' = '#e1665d', 'superintronic' = '#f8b712', 
-         'iREAD' = '#689404', 'IntEREst' = '#745bad', 'KMA' = '#33a2b7')
+         'iREAD' = '#689404', 'IntEREst' = '#745bad', 'KMA' = '#33a2b7',
+         'rMATS' = '#DAF7A6', 'MAJIQ' = '#FFC0C0', 'SUPPA2' = '#abddff')
 # set transparency
 alpha.val <- 1
 # set point and line size
@@ -144,15 +150,15 @@ lgg <- lapply(ldfpr, function(dfpr){
   return(list(prec = gg.ptline.prec, rec = gg.ptline.rec, 
               f1score = gg.ptline.f1score, legend = plot.legend))
 })
-names(lgg) <- plot.titlev
+names(lgg) <- names(ldfpr)
 
 # plot dims
-prec.ymax <- 0.2
-rec.ymax <- 0.7
-f1.ymax <- 0.25
+prec.ymax <- 1
+rec.ymax <- 1
+f1.ymax <- 1
 xmax <- max(len.filt)
 
-# make composite plot
+# get plot objects
 prec.hx1 <- lgg[[1]]$prec + ylim(0, prec.ymax) + xlim(0, xmax) +
   theme(axis.title.x = element_blank(), axis.text.x = element_blank())
 rec.hx1 <- lgg[[1]]$rec + ylim(0, rec.ymax) + xlim(0, xmax) +
@@ -169,6 +175,9 @@ f1.ipsc <- lgg[[2]]$f1score + ylim(0, f1.ymax) + xlim(0, xmax) +
   theme(axis.title.y = element_blank(), axis.title.x = element_blank(),
         axis.text.y = element_blank())
 
+#-------------------------------------------------
+# ggpt/line figure -- prec/rec/f1 by intron length
+#-------------------------------------------------
 # save new figure
 # get figure vars
 num.plot <- 4; num.legend <- 2
@@ -198,11 +207,12 @@ grid.arrange(prec.hx1, rec.hx1, f1.hx1, prec.ipsc, rec.ipsc, f1.ipsc,
              top = title.str, bottom = xlab.str)
 dev.off()
 
-#--------------------------------------------
-# revised fig 4b -- prec/rec by ilength tiles
-#--------------------------------------------
+#------------------------------------------------
+# get prec/rec/f1 for binned intron length ranges
+#------------------------------------------------
+# get data for fig 4b
 # define the length filters
-seq.max <- 4000; bin.size <- 300; len.filt <- seq(0, seq.max, 100)
+seq.max <- 4000; bin.size <- 300; len.filt <- seq(0, seq.max, bin.size)
 # get list of dfpr objects
 ldfpr <- lapply(ltsv, function(tsvi){
   dfpr <- dfpr_bylenfilt_binned(tsvi, len.filt = len.filt,
@@ -212,9 +222,13 @@ ldfpr <- lapply(ltsv, function(tsvi){
   dfpr[dfpr$tool=="iread",]$tool <- "iREAD"
   dfpr[dfpr$tool=="kma",]$tool <- "KMA"
   dfpr[dfpr$tool=="irfinders",]$tool <- "IRFinder-S"
+  dfpr[dfpr$tool=="rmats",]$tool <- "rMATS"
+  dfpr[dfpr$tool=="majiq",]$tool <- "MAJIQ"
+  dfpr[dfpr$tool=="suppa2",]$tool <- "SUPPA2"
   dfpr$Tool <- dfpr$tool # format vars
   dfpr$`RI detection\ntool` <- dfpr$tool; dfpr
 })
+names(ldfpr) <- names(ltsv)
 
 # set transparency
 # alpha.val <- 1
@@ -222,7 +236,7 @@ ldfpr <- lapply(ltsv, function(tsvi){
 # pt.size <- 1.2; line.size <- 1
 lgg <- lapply(ldfpr, function(dfpr){
   # filter bins on min introns
-  min.introns <- 200; dfprf <- dfpr[dfpr$num.intron >= min.introns,]
+  min.introns <- 80; dfprf <- dfpr[dfpr$num.intron >= min.introns,]
   # make plot objects
   gg.prec <- ggplot(dfprf, aes(x = min.len, y = precision, color = Tool)) +
     geom_smooth(se = F) + theme_bw() + scale_color_manual(values = pal) +
@@ -242,37 +256,40 @@ lgg <- lapply(ldfpr, function(dfpr){
   gg.f1 <- gg.f1 + theme(axis.title.x = element_blank(), legend.position = "none")
   return(list(prec = gg.prec, rec = gg.rec, f1score = gg.f1, legend = plot.legend))
 })
-names(lgg) <- c("HX1", "iPSC")
+names(lgg) <- names(ltsv)
 
 # plot dims
-prec.ymax <- 0.25
-rec.ymax <- 0.52
-f1.ymax <- 0.28
+prec.ymax <- 1
+rec.ymax <- 1
+f1.ymax <- 1
 xmax <- max(len.filt)
 
 # get formatted plot onbjects
-prec.hx1 <- lgg[[1]]$prec + ylim(0, prec.ymax) + xlim(0, xmax) +
-  theme(axis.title.x = element_blank(), axis.text.x = element_blank()) +
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
-rec.hx1 <- lgg[[1]]$rec + ylim(0, rec.ymax) + xlim(0, xmax) +
-  theme(axis.title.x = element_blank(), axis.text.x = element_blank()) +
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
-f1.hx1 <- lgg[[1]]$f1score + ylim(0, f1.ymax) + xlim(0, xmax) +
-  theme(axis.title.x = element_blank()) +
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
-prec.ipsc <- lgg[[2]]$prec + ylim(0, prec.ymax) + xlim(0, xmax) +
-  theme(axis.title.y = element_blank(), axis.title.x = element_blank(),
-        axis.text.y = element_blank(), axis.text.x = element_blank()) +
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
-rec.ipsc <- lgg[[2]]$rec + ylim(0, rec.ymax) + xlim(0, xmax) + 
-  theme(axis.title.y = element_blank(), axis.title.x = element_blank(),
-        axis.text.y = element_blank(), axis.text.x = element_blank()) +
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
-f1.ipsc <- lgg[[2]]$f1score + ylim(0, f1.ymax) + xlim(0, xmax) +
-  theme(axis.title.y = element_blank(), axis.title.x = element_blank(),
-        axis.text.y = element_blank()) +
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.01))
+prec.hx1 <- lgg[["HX1"]]$prec + ylim(0, prec.ymax) + xlim(0, xmax) +
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank())
 
+rec.hx1 <- lgg[["HX1"]]$rec + ylim(0, rec.ymax) + xlim(0, xmax) +
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank())
+
+f1.hx1 <- lgg[["HX1"]]$f1score + ylim(0, f1.ymax) + xlim(0, xmax) +
+  theme(axis.title.x = element_blank())
+
+prec.ipsc <- lgg[["iPSC"]]$prec + ylim(0, prec.ymax) + xlim(0, xmax) +
+  theme(axis.title.y = element_blank(), axis.title.x = element_blank(),
+        axis.text.y = element_blank(), axis.text.x = element_blank())
+
+rec.ipsc <- lgg[["iPSC"]]$rec + ylim(0, rec.ymax) + xlim(0, xmax) + 
+  theme(axis.title.y = element_blank(), axis.title.x = element_blank(),
+        axis.text.y = element_blank(), axis.text.x = element_blank())
+
+f1.ipsc <- lgg[["iPSC"]]$f1score + ylim(0, f1.ymax) + xlim(0, xmax) +
+  theme(axis.title.y = element_blank(), axis.title.x = element_blank(),
+        axis.text.y = element_blank())
+
+
+#--------------------------------------------
+# revised fig 4b -- prec/rec by ilength tiles
+#--------------------------------------------
 # make composite plot
 # format plot vars
 title.str <- paste0(paste0(rep(" ", 32), collapse = ""), 
