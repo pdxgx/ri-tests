@@ -275,9 +275,9 @@ def tp_fp_stacked_barplots(lr_introns, intron_sets, flag, out_dir, now,
     right_locs = [loc + shift for loc in label_locs]
     tp_col = '#9db92c'
     fp_col = '#d8788a'
-    axislabel_size = 18
-    ticklabel_size = 16
-    legend_fontsize = 16
+    axislabel_size = 22
+    ticklabel_size = 18
+    legend_fontsize = 20
     fig, ax = plt.subplots()
     ax.yaxis.grid(True)
     ax.set_axisbelow(True)

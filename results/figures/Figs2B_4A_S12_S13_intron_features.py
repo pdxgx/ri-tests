@@ -636,9 +636,9 @@ def features_vs_detection(hx1_bin, ipsc_bin, output_dir, now):
     fig.set_figwidth(9)
 
     yrotation = 0
-    axislabel_size = 16
-    ticklabel_size = 14
-    title_size = 16
+    axislabel_size = 22
+    ticklabel_size = 19
+    title_size = 22
     blank_labels = ['', '', '', '', '', '', '', '', '']
     headers = ['HX1', 'iPSC']
     tool_cols = [
@@ -677,7 +677,7 @@ def features_vs_detection(hx1_bin, ipsc_bin, output_dir, now):
         ax.set_ylim([20, 400000])
         ax.set_yscale('log')
         if j == 0:
-            ylabel = 'Intron length\n(# bases)'
+            ylabel = 'Intron length\n(# bases)\n'
             plt.yticks(rotation=yrotation, fontsize=ticklabel_size)
         else:
             ylabel = ''
@@ -702,7 +702,7 @@ def features_vs_detection(hx1_bin, ipsc_bin, output_dir, now):
             plt.setp(med, color='black', linewidth=2)
             plt.setp(box, facecolor=dark_cols[i], edgecolor='black')
         if j == 0:
-            ylabel = "Intron GC content\n"
+            ylabel = "Intron\nGC content"
             plt.yticks(
                 [0, 0.2, 0.4, 0.6, 0.8, 1], rotation=yrotation,
                 fontsize=ticklabel_size
@@ -737,7 +737,7 @@ def features_vs_detection(hx1_bin, ipsc_bin, output_dir, now):
             plt.setp(med, color='black', linewidth=2)
             plt.setp(box, facecolor=dark_cols[i], edgecolor='black')
         if j == 0:
-            ylabel = "Intron transcript position"
+            ylabel = "Intron position\nin transcript"
             plt.yticks(
                 [0, 0.25 ,0.5, 0.75, 1], ["5'", '', 'middle', '', "3'"],
                 rotation=yrotation, fontsize=ticklabel_size
@@ -762,7 +762,8 @@ def features_vs_detection(hx1_bin, ipsc_bin, output_dir, now):
         ]
         plt.xticks(
             [1, 2, 3, 4, 5, 6, 7, 8, 9], row_labels, fontsize=ticklabel_size,
-            rotation=45, ha="right"
+            # rotation=60, ha='center',
+            rotation=60, ha="right"
         )
         box_elements = zip(boxes['fliers'], boxes['medians'], boxes['boxes'])
         for i, (fly, med, box) in enumerate(box_elements):
@@ -828,10 +829,10 @@ def filtered_groupedbysamp_featvstruth(hx1_bin, ipsc_bin, output_dir, now):
     }
     data_entries = ['HX1', 'iPSC']
     yrotation = 0
-    axislabel_size = 16
-    ticklabel_size = 14
-    legend_fontsize= 12
-    title_size = 16
+    axislabel_size = 22
+    ticklabel_size = 19
+    legend_fontsize= 16
+    title_size = 20
     for i, col in enumerate(_TOOL_COLUMNS):
         # top row: intron length
         plot_data_dict = {x: {'data': [[], [], []]} for x in data_entries}
@@ -852,10 +853,16 @@ def filtered_groupedbysamp_featvstruth(hx1_bin, ipsc_bin, output_dir, now):
         curr_ax = axs[0, i]
         plt.sca(curr_ax)
         if i == 0:
-            ylabel = 'Intron length\n(# bases)'
-            print_legend = True
+            ylabel = 'Intron length\n(# bases)\n'
+            print_legend = False
             ytick_pos = []
             ytick_labels = []
+        elif i == 7:
+            print_legend = True
+            ylabel = ''
+            ytick_pos = [100, 1000, 10000, 100000]
+            ytick_labels = ['', '', '', '']
+
         else:
             print_legend = False
             ylabel = ''
@@ -869,7 +876,7 @@ def filtered_groupedbysamp_featvstruth(hx1_bin, ipsc_bin, output_dir, now):
             ytick_pos=ytick_pos, axislabel_fontsize=axislabel_size,
             ticklabel_fontsize=ticklabel_size, legend_fontsize=legend_fontsize
         )
-        curr_ax.set_ylim([20, 400000])
+        curr_ax.set_ylim([20, 1900000])
         curr_ax.set_title(col, fontsize=title_size)
 
         # 2nd row: intron GC content
@@ -891,7 +898,7 @@ def filtered_groupedbysamp_featvstruth(hx1_bin, ipsc_bin, output_dir, now):
         curr_ax = axs[1, i]
         plt.sca(curr_ax)
         if i == 0:
-            ylabel = "Intron GC content\n"
+            ylabel = "Intron\nGC content\n"
         else:
             ylabel = ''
         grouped_boxplots_axis(
@@ -921,7 +928,7 @@ def filtered_groupedbysamp_featvstruth(hx1_bin, ipsc_bin, output_dir, now):
         curr_ax = axs[2, i]
         plt.sca(curr_ax)
         if i == 0:
-            ylabel = "Intron transcript position"
+            ylabel = "Intron position\nin transcript"
             ytick_pos = [0, 0.25, 0.5, 0.75, 1]
             ytick_label = ["5'", '', 'middle', '', "3'"]
         else:
@@ -1014,104 +1021,104 @@ if __name__ == '__main__':
 
     now = datetime.now().strftime('%m-%d-%Y_%H.%M.%S')
 
-    features_vs_detection(hx1_call, ipsc_call, out_dir, now)
-    all_results_features_vs_truth(
-        hx1_call, hx1_expr, ipsc_call, ipsc_expr, out_dir, now
-    )
+    # features_vs_detection(hx1_call, ipsc_call, out_dir, now)
+    # all_results_features_vs_truth(
+    #     hx1_call, hx1_expr, ipsc_call, ipsc_expr, out_dir, now
+    # )
     filtered_groupedbysamp_featvstruth(hx1_call, ipsc_call, out_dir, now)
-
-    print('\nprinting additional info')
-    df_dict = {'iPSC': ipsc_call, 'HX1': hx1_call}
-    all_spl = 0
-    all_unspl = 0
-    total_ints = 0
-    all_called = 0
-    single_tool = 1
-    for samp, file in df_dict.items():
-        print('\n\n{}'.format(samp))
-        full_df = pd.read_table(file, sep='\t')
-        all_spl += full_df.loc[full_df[_PERS] == 0]['intron'].nunique()
-        all_unspl += full_df.loc[full_df[_PERS] == 1]['intron'].nunique()
-        total_ints += full_df['intron'].nunique()
-        print('all introns:', full_df['intron'].nunique())
-        print(
-            'fully spliced:',
-            full_df.loc[full_df[_PERS] == 0]['intron'].nunique()
-        )
-        print(
-            full_df.loc[full_df[_PERS] == 0]['intron'].nunique()
-            / full_df['intron'].nunique()
-        )
-        print(
-            'fully unspliced:',
-            full_df.loc[full_df[_PERS] == 1]['intron'].nunique()
-        )
-        print(
-            full_df.loc[full_df[_PERS] == 1]['intron'].nunique()
-            / full_df['intron'].nunique()
-        )
-        overlap_df = full_df.groupby(['intron'])[[
-            _SI_COL_BIN, _INT_COL_BIN, _IR_COL_BIN, _IRFS_COL_BIN,
-             _KMA_COL_BIN, _RMA_COL_BIN, _SUP_COL_BIN, _MAJ_COL_BIN, _PERS
-        ]].max().reset_index()
-        overlap_df['ts'] = overlap_df.apply(
-            lambda x:
-                int(x[_SI_COL_BIN] > 0)
-                + int(x[_INT_COL_BIN] > 0)
-                + int(x[_IRFS_COL_BIN] > 0)
-                + int(x[_KMA_COL_BIN] > 0)
-                + int(x[_IR_COL_BIN] > 0)
-                + int(x[_RMA_COL_BIN] > 0)
-                + int(x[_SUP_COL_BIN] > 0)
-                + int(x[_MAJ_COL_BIN] > 0),
-            axis=1
-        )
-        tool_count_dict = overlap_df.groupby('ts')['intron'].count().to_dict()
-        curr_allcalled = 0
-        curr_singletool = 0
-        for num_tools, num_introns in tool_count_dict.items():
-            if num_tools > 0:
-                all_called += num_introns
-                curr_allcalled += num_introns
-            if num_tools == 1:
-                curr_singletool = num_introns
-                single_tool += num_introns
-        print(
-            '{} of called introns called by exactly one tool ({}/{})'
-            ''.format(
-                curr_singletool / curr_allcalled,
-                curr_singletool,
-                curr_allcalled
-            )
-        )
-        uncalled_persistent_introns = full_df.loc[
-            (full_df[_PERS] > 0)
-            & (full_df[_SI_COL_BIN] == 0)
-            & (full_df[_INT_COL_BIN] == 0)
-            & (full_df[_IR_COL_BIN] == 0)
-            & (full_df[_IRFS_COL_BIN] == 0)
-            & (full_df[_KMA_COL_BIN] == 0)
-            & (full_df[_SUP_COL_BIN] == 0)
-            & (full_df[_MAJ_COL_BIN] == 0)
-            & (full_df[_RMA_COL_BIN] == 0)
-        ]['intron'].nunique()
-        pers_ints = full_df.loc[full_df[_PERS] > 0]['intron'].nunique()
-        print(
-            '{} persistent introns not called by any short-read tool ({} / {})'
-            ''.format(
-                uncalled_persistent_introns / pers_ints,
-                uncalled_persistent_introns, pers_ints
-            )
-        )
-        num_genes = full_df['gene_id'].nunique()
-        print('\n{} genes with RI'.format(num_genes))
-
-    print('\nall:')
-    print('fully spliced:', all_spl)
-    print(all_spl / total_ints)
-    print('fully unspliced:', all_unspl)
-    print(all_unspl / total_ints)
-    print(
-        '{} of called introns called by exactly one tool ({}/{})'
-        ''.format(single_tool / all_called, single_tool, all_called)
-    )
+    #
+    # print('\nprinting additional info')
+    # df_dict = {'iPSC': ipsc_call, 'HX1': hx1_call}
+    # all_spl = 0
+    # all_unspl = 0
+    # total_ints = 0
+    # all_called = 0
+    # single_tool = 1
+    # for samp, file in df_dict.items():
+    #     print('\n\n{}'.format(samp))
+    #     full_df = pd.read_table(file, sep='\t')
+    #     all_spl += full_df.loc[full_df[_PERS] == 0]['intron'].nunique()
+    #     all_unspl += full_df.loc[full_df[_PERS] == 1]['intron'].nunique()
+    #     total_ints += full_df['intron'].nunique()
+    #     print('all introns:', full_df['intron'].nunique())
+    #     print(
+    #         'fully spliced:',
+    #         full_df.loc[full_df[_PERS] == 0]['intron'].nunique()
+    #     )
+    #     print(
+    #         full_df.loc[full_df[_PERS] == 0]['intron'].nunique()
+    #         / full_df['intron'].nunique()
+    #     )
+    #     print(
+    #         'fully unspliced:',
+    #         full_df.loc[full_df[_PERS] == 1]['intron'].nunique()
+    #     )
+    #     print(
+    #         full_df.loc[full_df[_PERS] == 1]['intron'].nunique()
+    #         / full_df['intron'].nunique()
+    #     )
+    #     overlap_df = full_df.groupby(['intron'])[[
+    #         _SI_COL_BIN, _INT_COL_BIN, _IR_COL_BIN, _IRFS_COL_BIN,
+    #          _KMA_COL_BIN, _RMA_COL_BIN, _SUP_COL_BIN, _MAJ_COL_BIN, _PERS
+    #     ]].max().reset_index()
+    #     overlap_df['ts'] = overlap_df.apply(
+    #         lambda x:
+    #             int(x[_SI_COL_BIN] > 0)
+    #             + int(x[_INT_COL_BIN] > 0)
+    #             + int(x[_IRFS_COL_BIN] > 0)
+    #             + int(x[_KMA_COL_BIN] > 0)
+    #             + int(x[_IR_COL_BIN] > 0)
+    #             + int(x[_RMA_COL_BIN] > 0)
+    #             + int(x[_SUP_COL_BIN] > 0)
+    #             + int(x[_MAJ_COL_BIN] > 0),
+    #         axis=1
+    #     )
+    #     tool_count_dict = overlap_df.groupby('ts')['intron'].count().to_dict()
+    #     curr_allcalled = 0
+    #     curr_singletool = 0
+    #     for num_tools, num_introns in tool_count_dict.items():
+    #         if num_tools > 0:
+    #             all_called += num_introns
+    #             curr_allcalled += num_introns
+    #         if num_tools == 1:
+    #             curr_singletool = num_introns
+    #             single_tool += num_introns
+    #     print(
+    #         '{} of called introns called by exactly one tool ({}/{})'
+    #         ''.format(
+    #             curr_singletool / curr_allcalled,
+    #             curr_singletool,
+    #             curr_allcalled
+    #         )
+    #     )
+    #     uncalled_persistent_introns = full_df.loc[
+    #         (full_df[_PERS] > 0)
+    #         & (full_df[_SI_COL_BIN] == 0)
+    #         & (full_df[_INT_COL_BIN] == 0)
+    #         & (full_df[_IR_COL_BIN] == 0)
+    #         & (full_df[_IRFS_COL_BIN] == 0)
+    #         & (full_df[_KMA_COL_BIN] == 0)
+    #         & (full_df[_SUP_COL_BIN] == 0)
+    #         & (full_df[_MAJ_COL_BIN] == 0)
+    #         & (full_df[_RMA_COL_BIN] == 0)
+    #     ]['intron'].nunique()
+    #     pers_ints = full_df.loc[full_df[_PERS] > 0]['intron'].nunique()
+    #     print(
+    #         '{} persistent introns not called by any short-read tool ({} / {})'
+    #         ''.format(
+    #             uncalled_persistent_introns / pers_ints,
+    #             uncalled_persistent_introns, pers_ints
+    #         )
+    #     )
+    #     num_genes = full_df['gene_id'].nunique()
+    #     print('\n{} genes with RI'.format(num_genes))
+    #
+    # print('\nall:')
+    # print('fully spliced:', all_spl)
+    # print(all_spl / total_ints)
+    # print('fully unspliced:', all_unspl)
+    # print(all_unspl / total_ints)
+    # print(
+    #     '{} of called introns called by exactly one tool ({}/{})'
+    #     ''.format(single_tool / all_called, single_tool, all_called)
+    # )
